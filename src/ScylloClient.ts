@@ -1,4 +1,5 @@
 import { Client, DseClientOptions, types } from 'cassandra-driver';
+import { insertIntoRaw } from '.';
 import { selectFromRaw, selectOneFromRaw, ValidDataType } from './QueryBuilder';
 
 export type DatabaseObject = {[key: string]: ValidDataType};
@@ -40,5 +41,11 @@ export class ScylloClient<TableMap extends Tables> {
         const query = selectOneFromRaw<TableMap, F>(this.keyspace, table, select, criteria, extra);
         const result = await this.rawWithParams(query.query, query.args);
         return result.rows.slice(0,1).map((row) => (Object.assign({}, ...row.keys().map(k => ({ [k]: row.get(k) })))))[0] as TableMap[F];    
+    }
+
+    async insertInto<F extends keyof TableMap>(table: F, obj: Partial<TableMap[F]>): Promise<types.ResultSet> {
+        const query = insertIntoRaw<TableMap, F>(this.keyspace, table, obj);
+        const result = await this.rawWithParams(query.query, query.args);
+        return result;
     }
 }

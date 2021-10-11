@@ -13,7 +13,8 @@ beforeAll(async () => {
             contactPoints: [
                 'localhost:9042'
             ],
-            'localDataCenter': 'datacenter1'
+            localDataCenter: 'datacenter1',
+            keyspace: 'scyllo'
         }
     });
     await DB.client.execute('SELECT * FROM system.local');
