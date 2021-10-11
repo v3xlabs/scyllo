@@ -1,5 +1,5 @@
 import { Client, DseClientOptions, types } from 'cassandra-driver';
-import { selectFromRaw, ValidDataType } from './QueryBuilder';
+import { selectFromRaw, selectOneFromRaw, ValidDataType } from './QueryBuilder';
 
 export type DatabaseObject = {[key: string]: ValidDataType};
 export type Tables = {[key: string]: DatabaseObject};
@@ -37,7 +37,7 @@ export class ScylloClient<TableMap extends Tables> {
     }
 
     async selectOneFrom<F extends keyof TableMap>(table: F, select: '*' | (keyof TableMap[F])[], criteria?: { [key in keyof TableMap[F]]?: TableMap[F][key] | string }, extra?: string): Promise<TableMap[F]> {
-        const query = selectFromRaw<TableMap, F>(this.keyspace, table, select, criteria, extra);
+        const query = selectOneFromRaw<TableMap, F>(this.keyspace, table, select, criteria, extra);
         const result = await this.rawWithParams(query.query, query.args);
         return result.rows.slice(0,1).map((row) => (Object.assign({}, ...row.keys().map(k => ({ [k]: row.get(k) })))))[0] as TableMap[F];    
     }
