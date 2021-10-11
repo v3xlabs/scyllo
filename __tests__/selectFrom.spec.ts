@@ -32,9 +32,9 @@ it('Can fetch every user from the database with empty criteria object', async ()
 });
 
 it('Can request users using key', async () => {
-    console.log(await DB.selectFrom('users', '*', { uid: 1234567890 }, 'ALLOW FILTERING'));
+    expect(await DB.selectFrom('users', '*', { uid: 1234567890 }, 'ALLOW FILTERING'));
 });
 
 it('Can request users using non-key and extra values', async () => {
-    console.log(await DB.selectFrom('users', '*', { username: 'lucemans' }, 'ALLOW FILTERING'));
+    expect(await DB.selectFrom('users', '*', { username: 'lucemans' }, 'ALLOW FILTERING'));
 });
