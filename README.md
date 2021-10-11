@@ -13,3 +13,7 @@ or
 ```sh
 yarn add scyllo
 ```
+
+## Restrictions
+
+Limited multi-keyspace support.

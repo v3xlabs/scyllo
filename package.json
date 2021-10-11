@@ -27,5 +27,8 @@
     "preversion": "yarn lint",
     "version": "git add -A src",
     "postversion": "git push && git push --tags"
+  },
+  "dependencies": {
+    "cassandra-driver": "^4.6.3"
   }
 }
