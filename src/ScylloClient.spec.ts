@@ -21,9 +21,7 @@ type BlogPost = {
         }
     });
 
-    // await DB.useKeyspace('scyllo');
-
-    console.log('DONE');
+    await DB.useKeyspace('shopkeeper');
 
     // DB.client.execute('SELECT * FROM scyllo.users WHERE uid=?', [12345]);
     // console.log(await DB.selectFrom('users', '*'));
