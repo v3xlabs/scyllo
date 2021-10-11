@@ -38,3 +38,7 @@ it('Can request users using key', async () => {
 it('Can request users using non-key and extra values', async () => {
     expect(await DB.selectFrom('users', '*', { username: 'lucemans' }, 'ALLOW FILTERING'));
 });
+
+afterAll(async () => {
+    await DB.client.shutdown();
+});
