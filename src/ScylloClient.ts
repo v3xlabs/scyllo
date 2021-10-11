@@ -35,4 +35,10 @@ export class ScylloClient<TableMap extends Tables> {
         const result = await this.rawWithParams(query.query, query.args);
         return result.rows.map((row) => (Object.assign({}, ...row.keys().map(k => ({ [k]: row.get(k) }))))) as TableMap[F][];    
     }
+
+    async selectOneFrom<F extends keyof TableMap>(table: F, select: '*' | (keyof TableMap[F])[], criteria?: { [key in keyof TableMap[F]]?: TableMap[F][key] | string }, extra?: string): Promise<TableMap[F]> {
+        const query = selectFromRaw<TableMap, F>(this.keyspace, table, select, criteria, extra);
+        const result = await this.rawWithParams(query.query, query.args);
+        return result.rows.slice(0,1).map((row) => (Object.assign({}, ...row.keys().map(k => ({ [k]: row.get(k) })))))[0] as TableMap[F];    
+    }
 }
