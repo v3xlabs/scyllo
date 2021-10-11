@@ -1,6 +1,6 @@
 {
   "name": "scyllo",
-  "version": "0.0.5",
+  "version": "0.1.0",
   "description": "The Cassandra/Scylla library you didn't want but got anyways.",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -26,7 +26,7 @@
     "typescript": "^4.4.3"
   },
   "scripts": {
-    "test": "echo yes",
+    "test": "jest",
     "build": "tsc",
     "lint": "tslint -p tsconfig.json",
     "prepare": "yarn build",
