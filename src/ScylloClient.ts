@@ -1,5 +1,5 @@
 import { Client, DseClientOptions, types } from 'cassandra-driver';
-import { deleteFromRaw, deleteRaw, insertIntoRaw } from '.';
+import { deleteFromRaw, insertIntoRaw } from './';
 import { selectFromRaw, selectOneFromRaw, ValidDataType } from './QueryBuilder';
 
 export type DatabaseObject = {[key: string]: ValidDataType};
