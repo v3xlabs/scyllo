@@ -1,10 +1,13 @@
 {
   "name": "scyllo",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "The Cassandra/Scylla library you didn't want but got anyways.",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
-  "repository": "git@github.com:lvkdotsh/scyllo.git",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lvkdotsh/scyllo.git"
+  },
   "author": "Lucemans <luc@lucemans.nl>",
   "files": [
     "lib"
