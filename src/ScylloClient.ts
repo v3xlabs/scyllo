@@ -19,6 +19,14 @@ export class ScylloClient<TableMap extends Tables> {
         this.keyspace = options.client.keyspace ?? '';
     }
 
+    async awaitConnection(): Promise<void> {
+        return await this.client.connect();
+    }
+
+    async shutdown(): Promise<void> {
+        return await this.client.shutdown();
+    }
+
     async raw(cmd: string): Promise<types.ResultSet> {
         return await this.client.execute(cmd);
     }

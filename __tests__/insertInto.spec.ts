@@ -17,7 +17,7 @@ beforeAll(async () => {
             keyspace: 'scyllo'
         }
     });
-    await DB.client.execute('SELECT * FROM system.local');
+    await DB.awaitConnection();
 });
 
 it('Can insert a user into the database', async () => {
@@ -34,5 +34,5 @@ it('Expects insert an empty user into the database, to throw error', async () =>
 });
 
 afterAll(async () => {
-    await DB.client.shutdown();
+    await DB.shutdown();
 });

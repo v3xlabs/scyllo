@@ -17,7 +17,7 @@ beforeAll(async () => {
             keyspace: 'scyllo'
         }
     });
-    await DB.client.execute('SELECT * FROM system.local');
+    await DB.awaitConnection();
 });
 
 it('Can switch keyspace', async () => {
@@ -41,5 +41,5 @@ it('Can request users using non-key and extra values', async () => {
 });
 
 afterAll(async () => {
-    await DB.client.shutdown();
+    await DB.shutdown();
 });
