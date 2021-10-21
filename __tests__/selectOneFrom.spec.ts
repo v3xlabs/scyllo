@@ -1,8 +1,9 @@
-import { ScylloClient } from "../lib";
+import Long from "long";
+import { ScylloClient, selectOneFromRaw } from "../lib";
 
 type User = {
     username: string,
-    uid: number
+    uid: Long
 }
 
 let DB: ScylloClient<{ 'users': User }>;
@@ -33,7 +34,7 @@ it('Can fetch every user from the database with empty criteria object', async ()
 });
 
 it('Can request users using key', async () => {
-    expect(await DB.selectOneFrom('users', '*', { uid: 1234567890 }, 'ALLOW FILTERING'));
+    expect(await DB.selectOneFrom('users', '*', { uid: Long.fromString("720140462585020488") }, 'ALLOW FILTERING'));
 });
 
 it('Can request users using non-key and extra values', async () => {

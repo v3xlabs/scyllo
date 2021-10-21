@@ -1,6 +1,6 @@
 import { Tables } from "./ScylloClient";
 
-export type ValidDataType = string | number | boolean;
+export type ValidDataType = string | number | boolean | Long;
 
 export type QueryBuild = {
     query: string,
