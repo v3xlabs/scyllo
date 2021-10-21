@@ -7,16 +7,19 @@ export type Tables = {[key: string]: DatabaseObject};
 
 export type ScylloClientOptions = {
     client: DseClientOptions,
+    debug?: boolean
 }
 
 export class ScylloClient<TableMap extends Tables> {
 
     keyspace: string = 'scyllo';
     client: Client;
+    debug: boolean;
 
     constructor(options: ScylloClientOptions) {
         this.client = new Client(options.client);
         this.keyspace = options.client.keyspace ?? '';
+        this.debug = options.debug || false;
     }
 
     async awaitConnection(): Promise<void> {
@@ -31,6 +34,8 @@ export class ScylloClient<TableMap extends Tables> {
         return await this.client.execute(cmd);
     }
     async rawWithParams(query: string, args: any[]): Promise<types.ResultSet> {
+        if (this.debug)
+            console.log(`[Scyllo][Debug]\t${query}\n${args.reduce((a,b) => a + " " + b)}`);
         return await this.client.execute(query, args);
     }
 
