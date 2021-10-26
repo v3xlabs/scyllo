@@ -35,7 +35,7 @@ export class ScylloClient<TableMap extends Tables> {
     }
     async rawWithParams(query: string, args: any[]): Promise<types.ResultSet> {
         if (this.debug)
-            console.log(`[Scyllo][Debug]\t${query}\n${args.reduce((a,b) => a + " " + b)}`);
+            console.log(`[Scyllo][Debug]\t${query}\n${args.reduce((a,b) => a + ' ' + b)}`);
         return await this.client.execute(query, args);
     }
 
@@ -66,5 +66,9 @@ export class ScylloClient<TableMap extends Tables> {
         const query = deleteFromRaw<TableMap, F>(this.keyspace, table, fields, criteria, extra);
         const result = await this.rawWithParams(query.query, query.args);
         return result;
+    }
+
+    async truncateTable<F extends keyof TableMap>(table: F): Promise<types.ResultSet> {
+        return await this.rawWithParams('TRUNCATE ?', [table]);
     }
 }
