@@ -71,4 +71,8 @@ export class ScylloClient<TableMap extends Tables> {
     async truncateTable<F extends keyof TableMap>(table: F): Promise<types.ResultSet> {
         return await this.rawWithParams('TRUNCATE ?', [table]);
     }
+
+    async dropTable<F extends keyof TableMap>(table: F): Promise<types.ResultSet> {
+        return await this.rawWithParams('DROP TABLE ?', [table]);
+    }
 }
