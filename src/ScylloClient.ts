@@ -1,5 +1,5 @@
 import { Client, DseClientOptions, types } from 'cassandra-driver';
-import { deleteFromRaw, insertIntoRaw } from './';
+import { createTableRaw, deleteFromRaw, insertIntoRaw } from './';
 import { selectFromRaw, selectOneFromRaw, ValidDataType } from './QueryBuilder';
 
 export type DatabaseObject = {[key: string]: ValidDataType};
@@ -74,5 +74,11 @@ export class ScylloClient<TableMap extends Tables> {
 
     async dropTable<F extends keyof TableMap>(table: F): Promise<types.ResultSet> {
         return await this.rawWithParams('DROP TABLE ?', [table]);
+    }
+
+    async createTable<F extends keyof TableMap>(table: F, createIfNotExists: boolean, columns: {[key in keyof TableMap[F]]: {type: keyof typeof types.dataTypes}}, partition: [keyof TableMap[F], keyof TableMap[F]] | keyof TableMap[F], clustering?: (keyof TableMap[F])[]): Promise<types.ResultSet> {
+        const query = createTableRaw(this.keyspace, table, createIfNotExists, columns, partition, clustering);
+        const result = await this.rawWithParams(query.query, query.args);
+        return result;
     }
 }

@@ -37,6 +37,7 @@ it('Can request users using key', async () => {
 });
 
 it('Can request users using non-key and extra values', async () => {
+    // DB.createTable('users', {uid: {type: 'ascii'}, username: {type: 'bigint'}});
     expect(await DB.selectFrom('users', '*', { username: 'lucemans' }, 'ALLOW FILTERING'));
 });
 
