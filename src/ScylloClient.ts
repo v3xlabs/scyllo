@@ -1,4 +1,5 @@
 import { Client, DseClientOptions, types } from 'cassandra-driver';
+
 import { createTableRaw, deleteFromRaw, insertIntoRaw, QueryBuild } from './';
 import { selectFromRaw, selectOneFromRaw, ValidDataType } from './QueryBuilder';
 
@@ -65,14 +66,12 @@ export class ScylloClient<TableMap extends Tables> {
 
     async insertInto<F extends keyof TableMap>(table: F, obj: Partial<TableMap[F]>): Promise<types.ResultSet> {
         const query = insertIntoRaw<TableMap, F>(this.keyspace, table, obj);
-        const result = await this.query(query);
-        return result;
+        return await this.query(query);
     }
 
     async deleteFrom<F extends keyof TableMap>(table: F, fields: '*' | (keyof TableMap[F])[], criteria: { [key in keyof TableMap[F]]?: TableMap[F][key] | string }, extra?: string): Promise<types.ResultSet> {
         const query = deleteFromRaw<TableMap, F>(this.keyspace, table, fields, criteria, extra);
-        const result = await this.query(query);
-        return result;
+        return await this.query(query);
     }
 
     async truncateTable<F extends keyof TableMap>(table: F): Promise<types.ResultSet> {
@@ -85,7 +84,6 @@ export class ScylloClient<TableMap extends Tables> {
 
     async createTable<F extends keyof TableMap>(table: F, createIfNotExists: boolean, columns: { [key in keyof TableMap[F]]: { type: keyof typeof types.dataTypes } }, partition: [keyof TableMap[F], keyof TableMap[F]] | keyof TableMap[F], clustering?: (keyof TableMap[F])[]): Promise<types.ResultSet> {
         const query = createTableRaw(this.keyspace, table, createIfNotExists, columns, partition, clustering);
-        const result = await this.query(query);
-        return result;
+        return await this.query(query);
     }
 }

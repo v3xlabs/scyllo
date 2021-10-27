@@ -1,2 +1,2 @@
-export * from './ScylloClient';
 export * from './QueryBuilder';
+export * from './ScylloClient';
