@@ -1,6 +1,6 @@
 {
   "name": "scyllo",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "The Cassandra/Scylla library you didn't want but got anyways.",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",

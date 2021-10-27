@@ -3,14 +3,13 @@ import { Client, DseClientOptions, types } from 'cassandra-driver';
 import { createTableRaw, deleteFromRaw, insertIntoRaw, QueryBuild } from './';
 import { selectFromRaw, selectOneFromRaw, ValidDataType } from './QueryBuilder';
 
-export type DatabaseObject = { [key: string]: ValidDataType };
+export type DatabaseObject = { [key: string]: ValidDataType } | object;
 export type Tables = { [key: string]: DatabaseObject };
 
 export type ScylloClientOptions = {
     client: DseClientOptions,
     debug?: boolean
 }
-
 export class ScylloClient<TableMap extends Tables> {
 
     keyspace: string = 'scyllo';
