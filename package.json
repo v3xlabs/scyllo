@@ -1,6 +1,6 @@
 {
   "name": "scyllo",
-  "version": "0.8.2",
+  "version": "0.8.3",
   "description": "The Cassandra/Scylla library you didn't want but got anyways.",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -41,7 +41,7 @@
     "lint": "eslint -c .eslintrc.json --ext .ts ./src",
     "prepare": "yarn build",
     "prepublishOnly": "yarn test && yarn lint",
-    "preversion": "yarn lint",
+    "preversion": "yarn lint && yarn build && yarn test",
     "version": "git add -A src",
     "postversion": "git push && git push --tags"
   },
