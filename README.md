@@ -1,5 +1,14 @@
 ![./scyllo.png](./scyllo.png)
 
+## Table of Contents
+
+- [Installation](#installation)
+- [Usage](#usage)
+  * [selectFrom](#selectfrom) (Getting information from the database)
+  * [insertInto](#insertinto) (Inserting objects into the database)
+  * [deleteFrom](#deletefrom) (Deleting rows or fields from the database)
+- [Known Restrictions](#known-restrictions)
+
 ## Installation
 
 Using `npm`:
