@@ -1,9 +1,7 @@
 import { types } from 'cassandra-driver';
-import { Long } from 'long';
 
 import { Tables } from './ScylloClient';
-
-export type ValidDataType = string | number | boolean | Long;
+import { toScyllo } from './ScylloTranslator';
 
 export type QueryBuild = {
     query: string,
@@ -22,7 +20,7 @@ export const selectOneFromRaw = <TableMap extends Tables, F extends keyof TableM
 
 export const insertIntoRaw = <TableMap extends Tables, F extends keyof TableMap>(keyspace: string, table: F, obj: Partial<TableMap[F]>): QueryBuild => ({
     query: `INSERT INTO ${keyspace}.${table} (${Object.keys(obj).join(', ')}) VALUES (${Object.keys(obj).map(() => '?').join(', ')})`,
-    args: Object.values(obj)
+    args: Object.values(obj).map(toScyllo)
 });
 
 export const deleteFromRaw = <TableMap extends Tables, F extends keyof TableMap>(keyspace: string, table: F, fields: '*' | (keyof TableMap[F])[], criteria: { [key in keyof TableMap[F]]?: TableMap[F][key] | string }, extra?: string): QueryBuild => ({
