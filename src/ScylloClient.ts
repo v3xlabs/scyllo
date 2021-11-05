@@ -51,16 +51,16 @@ export class ScylloClient<TableMap extends Tables> {
         return await this.raw(`USE ${keyspace};`);
     }
 
-    async selectFrom<F extends keyof TableMap>(table: F, select: '*' | (keyof TableMap[F])[], criteria?: { [key in keyof TableMap[F]]?: TableMap[F][key] | string }, extra?: string): Promise<TableMap[F][]> {
+    async selectFrom<F extends keyof TableMap, C extends keyof TableMap[F]>(table: F, select: '*' | C[], criteria?: { [key in keyof TableMap[F]]?: TableMap[F][key] | string }, extra?: string): Promise<Pick<TableMap[F], C>[]> {
         const query = selectFromRaw<TableMap, F>(this.keyspace, table, select, criteria, extra);
         const result = await this.query(query);
-        return result.rows.map((row) => (Object.assign({}, ...row.keys().map(k => ({ [k]: row.get(k) }))))) as TableMap[F][];
+        return result.rows.map((row) => (Object.assign({}, ...row.keys().map(k => ({ [k]: row.get(k) }))))) as Pick<TableMap[F], C>[];
     }
 
-    async selectOneFrom<F extends keyof TableMap>(table: F, select: '*' | (keyof TableMap[F])[], criteria?: { [key in keyof TableMap[F]]?: TableMap[F][key] | string }, extra?: string): Promise<TableMap[F]> {
+    async selectOneFrom<F extends keyof TableMap, C extends keyof TableMap[F]>(table: F, select: '*' | C[], criteria?: { [key in keyof TableMap[F]]?: TableMap[F][key] | string }, extra?: string): Promise<Pick<TableMap[F], C>> {
         const query = selectOneFromRaw<TableMap, F>(this.keyspace, table, select, criteria, extra);
         const result = await this.query(query);
-        return result.rows.slice(0, 1).map((row) => (Object.assign({}, ...row.keys().map(k => ({ [k]: row.get(k) })))))[0] as TableMap[F];
+        return result.rows.slice(0, 1).map((row) => (Object.assign({}, ...row.keys().map(k => ({ [k]: row.get(k) })))))[0] as Pick<TableMap[F], C>;
     }
 
     async insertInto<F extends keyof TableMap>(table: F, obj: Partial<TableMap[F]>): Promise<types.ResultSet> {
