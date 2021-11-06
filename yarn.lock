@@ -2115,6 +2115,14 @@ jest-mock@^27.2.5:
     "@jest/types" "^27.2.5"
     "@types/node" "*"
 
+jest-nyancat-reporter@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/jest-nyancat-reporter/-/jest-nyancat-reporter-2.0.0.tgz#72b669d2965ba492bdeda9a3d6d0b363ef12bbb8"
+  integrity sha512-3aCX9UKwhWDgQ7nU1rtt21fBb1dcNlgRIXxFapYWCFr7Bug3nGcZRRyDJ4r601YmMeUBwjHQ/S27hLp6rXSkvA==
+  dependencies:
+    ms "^2.1.1"
+    supports-color "^7.0.0"
+
 jest-pnp-resolver@^1.2.2:
   version "1.2.2"
   resolved "https://registry.yarnpkg.com/jest-pnp-resolver/-/jest-pnp-resolver-1.2.2.tgz#b704ac0ae028a89108a4d040b3f919dfddc8e33c"
@@ -2526,6 +2534,11 @@ ms@2.1.2:
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.1.2.tgz#d09d1f357b443f493382a8eb3ccd183872ae6009"
   integrity sha512-sGkPx+VjMtmA6MX27oA4FBFELFCZZ4S4XqeGOXCv68tT+jb3vk/RyaKWP0PTKyWtmLSM0b+adUTEvbs1PEaH2w==
+
+ms@^2.1.1:
+  version "2.1.3"
+  resolved "https://registry.yarnpkg.com/ms/-/ms-2.1.3.tgz#574c8138ce1d2b5861f0b44579dbadd60c6615b2"
+  integrity sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==
 
 multimap@^1.1.0:
   version "1.1.0"
