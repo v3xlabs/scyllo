@@ -49,7 +49,10 @@ export class ScylloClient<TableMap extends Tables> {
         return await this.rawWithParams(query.query, query.args);
     }
 
-    async useKeyspace(keyspace: string) {
+    async useKeyspace(keyspace: string, createIfNotExists = false) {
+        if (createIfNotExists)
+            await this.createKeyspace(keyspace);
+
         this.keyspace = keyspace;
 
         return await this.raw(`USE ${keyspace};`);
@@ -93,5 +96,9 @@ export class ScylloClient<TableMap extends Tables> {
         const query = createTableRaw(this.keyspace, table, createIfNotExists, columns, partition, clustering);
 
         return await this.query(query);
+    }
+
+    async createKeyspace(keyspace: string, replicationClass = 'SimpleStrategy', replicationFactor = 3) {
+        return await this.raw(`CREATE KEYSPACE IF NOT EXISTS ${keyspace} WITH replication = {'class':'${replicationClass}', 'replication_factor' : ${replicationFactor}};`);
     }
 }
