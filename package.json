@@ -47,7 +47,6 @@
     "postversion": "git push && git push --tags"
   },
   "dependencies": {
-    "cassandra-driver": "^4.6.3",
-    "emoji-poop": "^1.3.0"
+    "cassandra-driver": "^4.6.3"
   }
 }
