@@ -28,7 +28,9 @@ export const deleteFromRaw = <TableMap extends Tables, F extends keyof TableMap>
     args: [...(criteria ? Object.values(criteria) : [])]
 });
 
-export const createTableRaw = <TableMap extends Tables, F extends keyof TableMap>(keyspace: string, table: F, createIfNotExists: boolean, columns: { [key in keyof TableMap[F] | string]: { type: keyof typeof types.dataTypes } }, partition: [keyof TableMap[F], keyof TableMap[F]] | keyof TableMap[F], clustering?: (keyof TableMap[F])[]): QueryBuild => ({
+export type ColumnType = { type: keyof typeof types.dataTypes, test?: string };
+
+export const createTableRaw = <TableMap extends Tables, F extends keyof TableMap>(keyspace: string, table: F, createIfNotExists: boolean, columns: { [key in keyof TableMap[F]]: ColumnType }, partition: [keyof TableMap[F], keyof TableMap[F]] | keyof TableMap[F], clustering?: (keyof TableMap[F])[]): QueryBuild => ({
     query: `CREATE TABLE${createIfNotExists ? ' IF NOT EXISTS' : ''} ${keyspace}.${table} (${Object.keys(columns).map(() => '? ?').join(',')}, PRIMARY KEY (${partition instanceof Array ? '(?, ?)' : '?'}${clustering ? `, ${clustering.map(() => '?').join(',')}` : ''}))`,
-    args: [...Object.keys(columns).flatMap(a => [a, columns[a].type.toString()]), ...(partition instanceof Array ? partition : [partition]), ...(clustering ? clustering : [])]
+    args: [...(Object.keys(columns) as (keyof TableMap[F])[]).flatMap(a => [a, (columns[a]).type.toString()]), ...(partition instanceof Array ? partition : [partition]), ...(clustering ? clustering : [])]
 });

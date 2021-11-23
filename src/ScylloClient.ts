@@ -92,7 +92,7 @@ export class ScylloClient<TableMap extends Tables> {
         return await this.rawWithParams('DROP TABLE ?', [table]);
     }
 
-    async createTable<F extends keyof TableMap>(table: F, createIfNotExists: boolean, columns: { [key in keyof TableMap[F] | string]: { type: keyof typeof types.dataTypes } }, partition: [keyof TableMap[F], keyof TableMap[F]] | keyof TableMap[F], clustering?: (keyof TableMap[F])[]): Promise<types.ResultSet> {
+    async createTable<F extends keyof TableMap>(table: F, createIfNotExists: boolean, columns: { [key in keyof TableMap[F]]: { type: keyof typeof types.dataTypes } }, partition: [keyof TableMap[F], keyof TableMap[F]] | keyof TableMap[F], clustering?: (keyof TableMap[F])[]): Promise<types.ResultSet> {
         const query = createTableRaw(this.keyspace, table, createIfNotExists, columns, partition, clustering);
 
         return await this.query(query);
