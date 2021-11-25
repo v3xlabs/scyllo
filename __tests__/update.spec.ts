@@ -1,8 +1,9 @@
+import Long from "long";
 import { ScylloClient } from "../lib";
 
 type User = {
     username: string,
-    uid: number
+    uid: Long
 }
 
 let DB: ScylloClient<{ 'users': User }>;
@@ -15,13 +16,12 @@ beforeAll(async () => {
             ],
             localDataCenter: 'datacenter1',
             keyspace: 'scyllo'
-        },
-        debug: true
+        }
     });
     await DB.awaitConnection();
 });
 it('Can update a specific user in the database', async () => {
-    expect(await DB.update('users', { username: "Jest" }, { uid: 1234567890 }));
+    expect(await DB.update('users', { username: "Jest" }, { uid: Long.fromString("1234567890") }));
 });
 
 afterAll(async () => {
