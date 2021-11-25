@@ -40,7 +40,7 @@ export class ScylloClient<TableMap extends Tables> {
 
     async rawWithParams(query: string, args: any[]): Promise<types.ResultSet> {
         if (this.debug)
-            console.log(`[Scyllo][Debug]\t${query}\n${args.join(" ")}`);
+            console.log(`[Scyllo][Debug]\t${query}\n${args.join(' ')}`);
 
         return await this.client.execute(query, args);
     }
