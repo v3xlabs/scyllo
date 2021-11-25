@@ -1,5 +1,5 @@
 import Long from "long";
-import { ScylloClient, selectOneFromRaw } from "../lib";
+import { ScylloClient } from "../lib";
 
 type User = {
     username: string,
