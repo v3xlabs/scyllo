@@ -1,6 +1,6 @@
 import { Client, DseClientOptions, types } from 'cassandra-driver';
 
-import { createTableRaw, deleteFromRaw, insertIntoRaw, QueryBuild } from './';
+import { createTableRaw, deleteFromRaw, insertIntoRaw, QueryBuild, updateRaw } from './';
 import { selectFromRaw, selectOneFromRaw } from './QueryBuilder';
 import { fromScyllo, ValidDataType } from './ScylloTranslator';
 
@@ -40,7 +40,7 @@ export class ScylloClient<TableMap extends Tables> {
 
     async rawWithParams(query: string, args: any[]): Promise<types.ResultSet> {
         if (this.debug)
-            console.log(`[Scyllo][Debug]\t${query}\n${args.reduce((a, b) => a + ' ' + b)}`);
+            console.log(`[Scyllo][Debug]\t${query}\n${args.join(" ")}`);
 
         return await this.client.execute(query, args);
     }
@@ -74,6 +74,12 @@ export class ScylloClient<TableMap extends Tables> {
 
     async insertInto<F extends keyof TableMap>(table: F, obj: Partial<TableMap[F]>): Promise<types.ResultSet> {
         const query = insertIntoRaw<TableMap, F>(this.keyspace, table, obj);
+
+        return await this.query(query);
+    }
+
+    async update<F extends keyof TableMap>(table: F, obj: Partial<TableMap[F]>, criteria: { [key in keyof TableMap[F]]?: TableMap[F][key] | string }): Promise<types.ResultSet> {
+        const query = updateRaw<TableMap, F>(this.keyspace, table, obj, criteria);
 
         return await this.query(query);
     }
