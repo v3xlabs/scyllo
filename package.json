@@ -40,7 +40,6 @@
     "test": "jest",
     "build": "tsc",
     "lint": "eslint -c .eslintrc.json --ext .ts ./src",
-    "prepare": "yarn build",
     "prepublishOnly": "yarn lint",
     "preversion": "yarn lint && yarn build",
     "version": "git add -A src",
