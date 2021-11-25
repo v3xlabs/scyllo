@@ -23,6 +23,11 @@ export const insertIntoRaw = <TableMap extends Tables, F extends keyof TableMap>
     args: Object.values(obj).map(toScyllo)
 });
 
+export const updateRaw = <TableMap extends Tables, F extends keyof TableMap>(keyspace: string, table: F, obj: Partial<TableMap[F]>, criteria: { [key in keyof TableMap[F]]?: TableMap[F][key] | string }): QueryBuild => ({
+    query: `UPDATE ${keyspace}.${table} SET ${Object.keys(obj).map(it => it + "=?").join(",")} ${criteria && Object.keys(criteria).length > 0 ? "WHERE " + Object.keys(criteria).map(crit => crit += "=?").join(" AND ") : ""}`.trim(),
+    args: [...Object.values(obj), ...(criteria ? Object.values(criteria) : [])]
+})
+
 export const deleteFromRaw = <TableMap extends Tables, F extends keyof TableMap>(keyspace: string, table: F, fields: '*' | (keyof TableMap[F])[], criteria: { [key in keyof TableMap[F]]?: TableMap[F][key] | string }, extra?: string): QueryBuild => ({
     query: `DELETE ${fields == '*' ? '' : fields.join(',')} ${keyspace}.${table} ${criteria && Object.keys(criteria).length > 0 ? ('WHERE ' + Object.keys(criteria).map(crit => crit + '=?').join(' AND ')) : ''} ${extra || ''}`.trim(),
     args: [...(criteria ? Object.values(criteria) : [])]
