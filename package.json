@@ -19,7 +19,7 @@
     "database",
     "client"
   ],
-  "license": "GPL-3.0",
+  "license": "MIT",
   "devDependencies": {
     "@types/jest": "^27.0.2",
     "@typescript-eslint/parser": "^5.2.0",
