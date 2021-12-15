@@ -1,10 +1,17 @@
+import { types } from 'cassandra-driver';
 
-import { Long } from 'long';
-
-export type ScylloSafeType = string | number | Long | boolean;
-export type ValidDataType = string | number | boolean | Long | string[] | object;
+export type ScylloSafeType = string | number | types.Long | boolean;
+export type ValidDataType =
+    | string
+    | number
+    | boolean
+    | types.Long
+    | string[]
+    | object;
 
 export const toScyllo: (a: ValidDataType) => ScylloSafeType = (a) => {
+    if (a instanceof types.Long) return a;
+
     if (Array.isArray(a) || a instanceof Object) {
         return JSON.stringify(a);
     }
