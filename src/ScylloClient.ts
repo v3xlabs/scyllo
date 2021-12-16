@@ -28,6 +28,11 @@ export type ScylloClientOptions = {
     debug?: boolean;
 };
 
+const fromObjScyllo = (row: types.Row) =>
+    Object.assign(
+        {},
+        ...row.keys().map((k) => ({ [k]: fromScyllo(row.get(k)) }))
+    );
 export class ScylloClient<TableMap extends Tables> {
     keyspace: string = 'scyllo';
     client: Client;
@@ -89,12 +94,7 @@ export class ScylloClient<TableMap extends Tables> {
         );
         const result = await this.query(query);
 
-        return result.rows.map((row) =>
-            Object.assign(
-                {},
-                ...row.keys().map((k) => ({ [k]: fromScyllo(row.get(k)) }))
-            )
-        ) as Pick<TableMap[F], C>[];
+        return result.rows.map(fromObjScyllo) as Pick<TableMap[F], C>[];
     }
 
     async selectOneFrom<F extends keyof TableMap, C extends keyof TableMap[F]>(
@@ -112,14 +112,10 @@ export class ScylloClient<TableMap extends Tables> {
         );
         const result = await this.query(query);
 
-        return result.rows
-            .slice(0, 1)
-            .map((row) =>
-                Object.assign(
-                    {},
-                    ...row.keys().map((k) => ({ [k]: fromScyllo(row.get(k)) }))
-                )
-            )[0] as Pick<TableMap[F], C>;
+        return result.rows.slice(0, 1).map(fromObjScyllo)[0] as Pick<
+            TableMap[F],
+            C
+        >;
     }
 
     async insertInto<F extends keyof TableMap>(
