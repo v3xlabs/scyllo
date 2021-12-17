@@ -23,7 +23,7 @@ export type ScylloClientOptions = {
     log?: LogMethod;
     /**
      * Verbose,
-     * Wether or not to output verbose information on each request.
+     * Whether or not to output verbose information on each request.
      */
     debug?: boolean;
 };
@@ -31,7 +31,7 @@ export type ScylloClientOptions = {
 const fromObjScyllo = (row: types.Row) =>
     Object.assign(
         {},
-        ...row.keys().map((k) => ({ [k]: fromScyllo(row.get(k)) }))
+        ...row.keys().map((item: any) => ({ [item]: fromScyllo(row.get(item)) }))
     );
 export class ScylloClient<TableMap extends Tables> {
     keyspace: string = 'scyllo';
@@ -45,11 +45,17 @@ export class ScylloClient<TableMap extends Tables> {
         this.debug = options.debug || false;
         this.log = options.log || console.log;
     }
-
+    /**
+     * Await the connection
+     * to the client.
+     */
     async awaitConnection(): Promise<void> {
         return await this.client.connect();
     }
-
+    /**
+     * Shutdown a
+     * client instance
+     */
     async shutdown(): Promise<void> {
         return await this.client.shutdown();
     }
@@ -78,7 +84,10 @@ export class ScylloClient<TableMap extends Tables> {
 
         return await this.raw(`USE ${keyspace};`);
     }
-
+    /**
+     * Select from
+     * a table and return based on criteria.
+     */
     async selectFrom<F extends keyof TableMap, C extends keyof TableMap[F]>(
         table: F,
         select: '*' | C[],
@@ -96,7 +105,10 @@ export class ScylloClient<TableMap extends Tables> {
 
         return result.rows.map(fromObjScyllo) as Pick<TableMap[F], C>[];
     }
-
+    /**
+     * Select one from
+     * a table and return based on criteria.
+     */
     async selectOneFrom<F extends keyof TableMap, C extends keyof TableMap[F]>(
         table: F,
         select: '*' | C[],
@@ -117,7 +129,10 @@ export class ScylloClient<TableMap extends Tables> {
             C
         >;
     }
-
+    /**
+     * Insert an object into
+     * a table.
+     */
     async insertInto<F extends keyof TableMap>(
         table: F,
         obj: Partial<TableMap[F]>
@@ -126,7 +141,10 @@ export class ScylloClient<TableMap extends Tables> {
 
         return await this.query(query);
     }
-
+    /**
+     * Update an entry in
+     * a table.
+     */
     async update<F extends keyof TableMap>(
         table: F,
         obj: Partial<TableMap[F]>,
@@ -141,7 +159,10 @@ export class ScylloClient<TableMap extends Tables> {
 
         return await this.query(query);
     }
-
+    /**
+     * Delete from
+     * a table based on criteria.
+     */
     async deleteFrom<F extends keyof TableMap>(
         table: F,
         fields: '*' | (keyof TableMap[F])[],
@@ -158,19 +179,28 @@ export class ScylloClient<TableMap extends Tables> {
 
         return await this.query(query);
     }
-
+    /**
+     * Truncate
+     * a certain table.
+     */
     async truncateTable<F extends keyof TableMap>(
         table: F
     ): Promise<types.ResultSet> {
         return await this.rawWithParams('TRUNCATE ?', [table]);
     }
-
+    /**
+     * Delete
+     * a table.
+     */
     async dropTable<F extends keyof TableMap>(
         table: F
     ): Promise<types.ResultSet> {
         return await this.rawWithParams('DROP TABLE ?', [table]);
     }
-
+    /**
+     * Create
+     * a table.
+     */
     async createTable<F extends keyof TableMap>(
         table: F,
         createIfNotExists: boolean,
@@ -191,7 +221,10 @@ export class ScylloClient<TableMap extends Tables> {
 
         return await this.query(query);
     }
-
+    /**
+     * Create
+     * a keyspace.
+     */
     async createKeyspace(
         keyspace: string,
         replicationClass = 'SimpleStrategy',
