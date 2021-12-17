@@ -46,7 +46,7 @@ export class ScylloClient<TableMap extends Tables> {
         this.log = options.log || console.log;
     }
     /**
-     * Connect
+     * Await the connection
      * to the client.
      */
     async awaitConnection(): Promise<void> {
