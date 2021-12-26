@@ -1,5 +1,5 @@
 import { LogMethod } from '@lvksh/logger';
-import { Client, DseClientOptions, types } from 'cassandra-driver';
+import { Client, DseClientOptions as CassandraConfig, types } from 'cassandra-driver';
 
 import {
     createTableRaw,
@@ -12,10 +12,18 @@ import { selectFromRaw, selectOneFromRaw } from './QueryBuilder';
 import { fromScyllo, ValidDataType } from './ScylloTranslator';
 
 export type DatabaseObject = { [key: string]: ValidDataType } | typeof Object;
-export type Tables = { [key: string]: DatabaseObject };
+export type TableScheme = { [key: string]: DatabaseObject };
+
+export type TableCreateLayout<F> = {
+    [key in keyof F]: { type: keyof typeof types.dataTypes };
+};
 
 export type ScylloClientOptions = {
-    client: DseClientOptions;
+    /**
+     * Cassandra-Driver config
+     * Empty Object = `localhost:9042`
+     */
+    client: CassandraConfig;
     /**
      * Custom log method
      * @default `console.log`
@@ -31,9 +39,11 @@ export type ScylloClientOptions = {
 const fromObjScyllo = (row: types.Row) =>
     Object.assign(
         {},
-        ...row.keys().map((item: any) => ({ [item]: fromScyllo(row.get(item)) }))
+        ...row
+            .keys()
+            .map((item: any) => ({ [item]: fromScyllo(row.get(item)) }))
     );
-export class ScylloClient<TableMap extends Tables> {
+export class ScylloClient<Tables extends TableScheme> {
     keyspace: string = 'scyllo';
     client: Client;
     debug: boolean;
@@ -88,13 +98,13 @@ export class ScylloClient<TableMap extends Tables> {
      * Select from
      * a table and return based on criteria.
      */
-    async selectFrom<F extends keyof TableMap, C extends keyof TableMap[F]>(
-        table: F,
-        select: '*' | C[],
-        criteria?: { [key in keyof TableMap[F]]?: TableMap[F][key] | string },
+    async selectFrom<TableName extends keyof Tables, ColumnName extends keyof Tables[TableName]>(
+        table: TableName,
+        select: '*' | ColumnName[],
+        criteria?: { [key in keyof Tables[TableName]]?: Tables[TableName][key] | string },
         extra?: string
-    ): Promise<Pick<TableMap[F], C>[]> {
-        const query = selectFromRaw<TableMap, F>(
+    ): Promise<Pick<Tables[TableName], ColumnName>[]> {
+        const query = selectFromRaw<Tables, TableName>(
             this.keyspace,
             table,
             select,
@@ -103,19 +113,19 @@ export class ScylloClient<TableMap extends Tables> {
         );
         const result = await this.query(query);
 
-        return result.rows.map(fromObjScyllo) as Pick<TableMap[F], C>[];
+        return result.rows.map(fromObjScyllo) as Pick<Tables[TableName], ColumnName>[];
     }
     /**
      * Select one from
      * a table and return based on criteria.
      */
-    async selectOneFrom<F extends keyof TableMap, C extends keyof TableMap[F]>(
-        table: F,
-        select: '*' | C[],
-        criteria?: { [key in keyof TableMap[F]]?: TableMap[F][key] | string },
+    async selectOneFrom<Table extends keyof Tables, ColumnName extends keyof Tables[Table]>(
+        table: Table,
+        select: '*' | ColumnName[],
+        criteria?: { [key in keyof Tables[Table]]?: Tables[Table][key] | string },
         extra?: string
-    ): Promise<Pick<TableMap[F], C>> {
-        const query = selectOneFromRaw<TableMap, F>(
+    ): Promise<Pick<Tables[Table], ColumnName>> {
+        const query = selectOneFromRaw<Tables, Table>(
             this.keyspace,
             table,
             select,
@@ -125,19 +135,19 @@ export class ScylloClient<TableMap extends Tables> {
         const result = await this.query(query);
 
         return result.rows.slice(0, 1).map(fromObjScyllo)[0] as Pick<
-            TableMap[F],
-            C
+            Tables[Table],
+            ColumnName
         >;
     }
     /**
      * Insert an object into
      * a table.
      */
-    async insertInto<F extends keyof TableMap>(
-        table: F,
-        obj: Partial<TableMap[F]>
+    async insertInto<Table extends keyof Tables>(
+        table: Table,
+        obj: Partial<Tables[Table]>
     ): Promise<types.ResultSet> {
-        const query = insertIntoRaw<TableMap, F>(this.keyspace, table, obj);
+        const query = insertIntoRaw<Tables, Table>(this.keyspace, table, obj);
 
         return await this.query(query);
     }
@@ -145,12 +155,12 @@ export class ScylloClient<TableMap extends Tables> {
      * Update an entry in
      * a table.
      */
-    async update<F extends keyof TableMap>(
-        table: F,
-        obj: Partial<TableMap[F]>,
-        criteria: { [key in keyof TableMap[F]]?: TableMap[F][key] | string }
+    async update<Table extends keyof Tables, ColumnName extends keyof Tables[Table]>(
+        table: Table,
+        obj: Partial<Tables[Table]>,
+        criteria: { [key in ColumnName]?: Tables[Table][key] | string }
     ): Promise<types.ResultSet> {
-        const query = updateRaw<TableMap, F>(
+        const query = updateRaw<Tables, Table, ColumnName>(
             this.keyspace,
             table,
             obj,
@@ -163,13 +173,13 @@ export class ScylloClient<TableMap extends Tables> {
      * Delete from
      * a table based on criteria.
      */
-    async deleteFrom<F extends keyof TableMap>(
-        table: F,
-        fields: '*' | (keyof TableMap[F])[],
-        criteria: { [key in keyof TableMap[F]]?: TableMap[F][key] | string },
+    async deleteFrom<Table extends keyof Tables, ColumnName extends keyof Tables[Table]>(
+        table: Table,
+        fields: '*' | ColumnName[],
+        criteria: { [key in ColumnName]?: Tables[Table][key] | string },
         extra?: string
     ): Promise<types.ResultSet> {
-        const query = deleteFromRaw<TableMap, F>(
+        const query = deleteFromRaw<Tables, Table, ColumnName>(
             this.keyspace,
             table,
             fields,
@@ -183,8 +193,8 @@ export class ScylloClient<TableMap extends Tables> {
      * Truncate
      * a certain table.
      */
-    async truncateTable<F extends keyof TableMap>(
-        table: F
+    async truncateTable<Table extends keyof Tables>(
+        table: Table
     ): Promise<types.ResultSet> {
         return await this.rawWithParams('TRUNCATE ?', [table]);
     }
@@ -192,8 +202,8 @@ export class ScylloClient<TableMap extends Tables> {
      * Delete
      * a table.
      */
-    async dropTable<F extends keyof TableMap>(
-        table: F
+    async dropTable<Table extends keyof Tables>(
+        table: Table
     ): Promise<types.ResultSet> {
         return await this.rawWithParams('DROP TABLE ?', [table]);
     }
@@ -201,14 +211,12 @@ export class ScylloClient<TableMap extends Tables> {
      * Create
      * a table.
      */
-    async createTable<F extends keyof TableMap>(
-        table: F,
+    async createTable<Table extends keyof Tables, ColumnName extends keyof Tables[Table]>(
+        table: Table,
         createIfNotExists: boolean,
-        columns: {
-            [key in keyof TableMap[F]]: { type: keyof typeof types.dataTypes };
-        },
-        partition: [keyof TableMap[F], keyof TableMap[F]] | keyof TableMap[F],
-        clustering?: (keyof TableMap[F])[]
+        columns: TableCreateLayout<Tables[Table]>,
+        partition: [ColumnName, ColumnName] | ColumnName,
+        clustering?: ColumnName[]
     ): Promise<types.ResultSet> {
         const query = createTableRaw(
             this.keyspace,
