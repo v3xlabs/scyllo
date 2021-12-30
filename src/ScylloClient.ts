@@ -2,6 +2,7 @@ import { LogMethod } from '@lvksh/logger';
 import { Client, DseClientOptions as CassandraConfig, types } from 'cassandra-driver';
 
 import {
+    ColumnType,
     createTableRaw,
     deleteFromRaw,
     insertIntoRaw,
@@ -15,7 +16,7 @@ export type DatabaseObject = { [key: string]: ValidDataType } | typeof Object;
 export type TableScheme = { [key: string]: DatabaseObject };
 
 export type TableCreateLayout<F> = {
-    [key in keyof F]: { type: keyof typeof types.dataTypes };
+    [key in keyof F]: ColumnType;
 };
 
 export type ScylloClientOptions = {
