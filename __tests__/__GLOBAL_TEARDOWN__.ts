@@ -1,4 +1,5 @@
 import { ScylloClient } from '../lib';
+import { ScylloJestTables } from './types';
 
 type User = {
     username: string,
@@ -8,7 +9,7 @@ type User = {
 export default async () => {
     console.log('Cleaning Database after Tests');
     
-    const DB = new ScylloClient<{ 'users': User }>({
+    const DB = new ScylloClient<ScylloJestTables>({
         client: {
             contactPoints: [
                 'localhost:9042'

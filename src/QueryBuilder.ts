@@ -117,24 +117,106 @@ export const deleteFromRaw = <
         args: [...(criteria ? Object.values(criteria) : [])],
     });
 
-export type ColumnType = { type: keyof typeof types.dataTypes; test?: string };
+export type CassandraTypes = keyof typeof types.dataTypes;
 
+export type ColumnMapType = {
+        type: 'map';
+        keyType: Omit<CassandraTypes, 'map' | 'set' | 'list'>;
+        valueType: Omit<CassandraTypes, 'map'> | AdvancedColumnType;
+    };
+    
+export type ColumnArrayType = {
+        type: 'set' | 'list';
+        typeDef:
+            | Omit<CassandraTypes, 'set' | 'list'>
+            | AdvancedColumnType;
+    };
+    
+export type ColumnTupleType = {
+        type: 'tuple';
+        types: (SimpleTypes | AdvancedColumnType)[];
+    };
+    
+export type ColumnType =
+        | AdvancedColumnType
+        | {
+            type: Omit<CassandraTypes, 'map' | 'set' | 'list'>;
+        };
+    
+export type ComplexTypes = 'map' | 'set' | 'list' | 'tuple';
+    
+export type SimpleTypes = Omit<CassandraTypes, ComplexTypes>;
+    
+export type AdvancedColumnType = ColumnMapType | ColumnArrayType | ColumnTupleType;
+    
+const createColumn = (value: ColumnType): string => {
+    switch (value.type) {
+    case 'map': {
+        if ((value as ColumnMapType).valueType instanceof Object) {
+            return `map<<frozen<${(value as ColumnMapType).keyType},${createColumn(
+                ((value as ColumnMapType).valueType as AdvancedColumnType)
+            )}>>`;
+        }
+    
+        return `map<${(value as ColumnMapType).keyType},${(value as ColumnMapType).valueType}>`;
+    }
+    case 'set': {
+        if ((value as ColumnArrayType).typeDef instanceof Object) {
+            return `set<frozen<${createColumn(
+                ((value as ColumnArrayType).typeDef as AdvancedColumnType)
+            )}>>`;
+        }
+    
+        return `set<${(value as ColumnArrayType).typeDef}>`;
+    }
+    
+    case 'list': {
+        if ((value as ColumnArrayType).typeDef instanceof Object) {
+            return `list<frozen<${createColumn(
+                ((value as ColumnArrayType).typeDef as AdvancedColumnType)
+            )}>>`;
+        }
+    
+        return `list<${(value as ColumnArrayType).typeDef}>`;
+    }
+    
+    case 'tuple': {
+        return `tuple<${(value as ColumnTupleType).types.map((type) => {
+            if (type instanceof Object) {
+                return createColumn(type as AdvancedColumnType);
+            }
+
+            return type;
+        }).join(', ')}>`;
+    }
+    
+    default: {
+        return value.type as string;
+    }
+    }
+};
+    
 export const createTableRaw = <
-    TableMap extends TableScheme,
-    F extends keyof TableMap,
->(
+        TableMap extends TableScheme,
+        F extends keyof TableMap
+    >(
         keyspace: string,
         table: F,
         createIfNotExists: boolean,
         columns: { [key in keyof TableMap[F]]: ColumnType },
         partition: [keyof TableMap[F], keyof TableMap[F]] | keyof TableMap[F],
-        clustering?: (keyof TableMap[F])[],
+        clustering?: (keyof TableMap[F])[]
     ): QueryBuild => ({
         query: `CREATE TABLE${
             createIfNotExists ? ' IF NOT EXISTS' : ''
         } ${keyspace}.${table} (${(Object.keys(columns) as (keyof TableMap[F])[])
-            .map((a) => a + ' ' + columns[a].type)
-            .join(',')}, PRIMARY KEY (${
+            .map(
+                (a) =>
+                    a +
+                    ' ' +
+                    createColumn(columns[a])
+            )
+            .join(', ')}, PRIMARY KEY (${
             partition instanceof Array ? '(' + partition.join(',') + ')' : partition
         }${clustering ? `, ${clustering.join(',')}` : ''}))`,
         args: [],

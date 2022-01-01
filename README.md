@@ -2,11 +2,13 @@
 
 ## Table of Contents
 
+- [Table of Contents](#table-of-contents)
 - [Installation](#installation)
 - [Usage](#usage)
-  * [selectFrom](#selectfrom) (Getting information from the database)
-  * [insertInto](#insertinto) (Inserting objects into the database)
-  * [deleteFrom](#deletefrom) (Deleting rows or fields from the database)
+  - [selectFrom](#selectfrom)
+  - [insertInto](#insertinto)
+  - [deleteFrom](#deletefrom)
+- [Type Conversion](#type-conversion)
 - [Known Restrictions](#known-restrictions)
 
 ## Installation
@@ -103,9 +105,18 @@ In the event you want to simply delete/clear one of the cells in a specific row 
 await DB.deleteFrom('users', ['username'], {user_id: "12345"});
 ```
 
+## Type Conversion
+
+In order to keep track of the corresponding Javascript type for a CQL data type, we can use the link bellow.
+[https://docs.datastax.com/en/developer/nodejs-driver/4.6/features/datatypes/](https://docs.datastax.com/en/developer/nodejs-driver/4.6/features/datatypes/)
+
+When `prepare = true` *(default behaviour)* in the Scyllo config, it understand that a javascript types should be converted to the corresponding cassandra type. When `prepare = false` it may cause issues with more advanced types as it will not convert them, it thus recommended to leave this option as `true`.
+
+Note that Tuples have to be create in a specific way, which you can read about [here](https://docs.datastax.com/en/developer/nodejs-driver/4.6/features/datatypes/tuples/).
+
 ## Known Restrictions
 
 Limited multi-keyspace support. This is something that is on our roadmap and hopefully some day in the future we will be able to handle this.
 As of right now scyllo is unable to provide you with a smooth multi-keyspace experience, but this is in the works.
 
-Query-ing restrictions are currently limited to only allow direct equality checks, for ex. `user_id = 5` etc. We hope to be able to support `user_id > 5` and `user_id >= 5` in the near future aswell. If this is something you are interested in, please let us know.
+Query-ing restrictions are currently limited to only allow direct equality checks, for ex. `user_id = 5` etc. We hope to be able to support `user_id > 5` and `user_id >= 5` in the near future as well. If this is something you are interested in, please let us know.
