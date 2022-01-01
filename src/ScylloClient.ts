@@ -2,12 +2,13 @@ import { LogMethod } from '@lvksh/logger';
 import { Client, DseClientOptions as CassandraConfig, types } from 'cassandra-driver';
 
 import {
+    createIndexRaw,
+    createLocalIndexRaw,
     createTableRaw,
     deleteFromRaw,
     insertIntoRaw,
     QueryBuild,
-    updateRaw,
-} from './';
+    updateRaw} from './';
 import { selectFromRaw, selectOneFromRaw } from './QueryBuilder';
 import { fromScyllo, ValidDataType } from './ScylloTranslator';
 
@@ -124,7 +125,7 @@ export class ScylloClient<Tables extends TableScheme> {
         select: '*' | ColumnName[],
         criteria?: { [key in keyof Tables[Table]]?: Tables[Table][key] | string },
         extra?: string
-    ): Promise<Pick<Tables[Table], ColumnName>> {
+    ): Promise<Pick<Tables[Table], ColumnName> | undefined> {
         const query = selectOneFromRaw<Tables, Table>(
             this.keyspace,
             table,
@@ -241,5 +242,36 @@ export class ScylloClient<Tables extends TableScheme> {
         return await this.raw(
             `CREATE KEYSPACE IF NOT EXISTS ${keyspace} WITH replication = {'class':'${replicationClass}', 'replication_factor' : ${replicationFactor}};`
         );
+    }
+
+    /**
+     * Create a Global Secondary Index
+     * 
+     * https://docs.scylladb.com/using-scylla/secondary-indexes/
+     */
+    async createIndex<Table extends keyof Tables, ColumnName extends keyof Tables[Table]>(
+        table: Table,
+        materialized_name: string,
+        column_to_index: ColumnName
+    ): Promise<types.ResultSet> {
+        const query = createIndexRaw<Tables, Table, ColumnName>(this.keyspace, table, materialized_name, column_to_index);
+
+        return await this.query(query);
+    }
+
+    /**
+     * Create a Local Secondary Index
+     * 
+     * https://docs.scylladb.com/using-scylla/local-secondary-indexes/
+     */
+    async createLocalIndex<Table extends keyof Tables, ColumnName extends keyof Tables[Table]>(
+        table: Table,
+        materialized_name: string,
+        primary_column: ColumnName,
+        column_to_index: ColumnName
+    ): Promise<types.ResultSet> {
+        const query = createLocalIndexRaw<Tables, Table, ColumnName>(this.keyspace, table, materialized_name, primary_column, column_to_index);
+
+        return await this.query(query);
     }
 }
