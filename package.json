@@ -37,7 +37,7 @@
         "typescript-eslint": "^0.0.1-alpha.0"
     },
     "scripts": {
-        "test": "yarn build && jest",
+        "test": "yarn build && jest --verbose",
         "build": "tsc",
         "lint": "eslint -c .eslintrc.json --ext .ts ./src",
         "pub": "yarn build && yarn publish --access public"

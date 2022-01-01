@@ -1,5 +1,5 @@
 import Long from "long";
-import { ScylloClient } from "../lib";
+import { ScylloClient } from "../../lib";
 
 type User = {
     username: string,
@@ -15,7 +15,7 @@ beforeAll(async () => {
                 'localhost:9042'
             ],
             localDataCenter: 'datacenter1',
-            keyspace: 'scyllo'
+            keyspace: 'scyllojestsuite'
         }
     });
     await DB.awaitConnection();
