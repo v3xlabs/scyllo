@@ -1,7 +1,9 @@
 import { LogMethod } from '@lvksh/logger';
 import { Client, DseClientOptions as CassandraConfig, types } from 'cassandra-driver';
+import {inspect} from 'util';
 
 import {
+    ColumnType,
     createIndexRaw,
     createLocalIndexRaw,
     createTableRaw,
@@ -16,7 +18,7 @@ export type DatabaseObject = { [key: string]: ValidDataType } | typeof Object;
 export type TableScheme = { [key: string]: DatabaseObject };
 
 export type TableCreateLayout<F> = {
-    [key in keyof F]: { type: keyof typeof types.dataTypes };
+    [key in keyof F]: ColumnType;
 };
 
 export type ScylloClientOptions = {
@@ -92,14 +94,25 @@ export class ScylloClient<Tables extends TableScheme> {
     }
 
     async raw(query: string): Promise<types.ResultSet> {
-        if (this.debug) this.log(`[Scyllo][Debug]\t${query}`);
+        if (this.debug) {
+            if (this.log == console.log) {
+                this.log(`[Scyllo][Debug] ${query}`);
+            } else {
+                this.log(query);
+            }
+        }
 
         return await this.client.execute(query);
     }
 
     async rawWithParams(query: string, args: any[]): Promise<types.ResultSet> {
-        if (this.debug)
-            this.log(`[Scyllo][Debug]\t${query}\n${args.join(' ')}`);
+        if (this.debug) {
+            if (this.log == console.log) {
+                this.log(`[Scyllo][Debug] ${query}\n${inspect(args)}`);
+            } else {
+                this.log(query, args);
+            }
+        }
 
         return await this.client.execute(query, args, { prepare: this.prepare });
     }

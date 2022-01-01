@@ -2,7 +2,7 @@
 module.exports = {
     preset: 'ts-jest',
     testEnvironment: 'node',
-    testPathIgnorePatterns: ['/.history/', '/node_modules/', '/__tests__/__.*.ts'],
+    testPathIgnorePatterns: ['/.history/', '/node_modules/', '/__tests__/__.*.ts', '/__tests__/types.ts'],
     /*reporters: [
         'jest-nyancat-reporter'
     ]*/
