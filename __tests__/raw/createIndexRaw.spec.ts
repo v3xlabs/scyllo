@@ -1,4 +1,4 @@
-import { createIndexRaw, createLocalIndexRaw } from '../lib';
+import { createIndexRaw, createLocalIndexRaw } from '../../lib';
 
 it('Can create a basic table', async () => {
     expect(

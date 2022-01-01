@@ -1,4 +1,4 @@
-import { selectOneFromRaw } from "../lib";
+import { selectOneFromRaw } from "../../lib";
 
 // fix
 it('Can insert a user into the database', async () => {

@@ -1,4 +1,4 @@
-import { createTableRaw } from "../lib";
+import { createTableRaw } from "../../lib";
 
 it('Can create a basic table', async () => {
     expect(createTableRaw<{'atable': {a:string}}, 'atable'>('scyllo', 'atable', false, {a: {type: 'bigint'}}, 'a')).toEqual({"args": [], "query": "CREATE TABLE scyllo.atable (a bigint, PRIMARY KEY (a))"});

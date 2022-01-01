@@ -24,7 +24,25 @@ export type ScylloClientOptions = {
      * Cassandra-Driver config
      * Empty Object = `localhost:9042`
      */
-    client: CassandraConfig;
+    client: CassandraConfig & {
+        /**
+         * Name of the keyspace you would like to use
+         * -scyllo was here
+         */
+        keyspace: string,
+        /**
+         * Name of the datacenter you would like to use,
+         * This can be completely arbitrary and is used for routing.
+         * -scyllo was here
+         */
+        localDataCenter: string
+    };
+    /**
+     * Whether to prepare inputed args for query
+     * @default true
+     * @example false
+     */
+    prepare?: boolean;
     /**
      * Custom log method
      * @default `console.log`
@@ -45,16 +63,18 @@ const fromObjScyllo = (row: types.Row) =>
             .map((item: any) => ({ [item]: fromScyllo(row.get(item)) }))
     );
 export class ScylloClient<Tables extends TableScheme> {
-    keyspace: string = 'scyllo';
+    keyspace: string;
     client: Client;
     debug: boolean;
     log: LogMethod;
+    prepare: boolean;
 
     constructor(options: ScylloClientOptions) {
         this.client = new Client(options.client);
-        this.keyspace = options.client.keyspace ?? '';
+        this.keyspace = options.client.keyspace;
         this.debug = options.debug || false;
         this.log = options.log || console.log;
+        this.prepare = options.prepare ?? true;
     }
     /**
      * Await the connection
@@ -81,7 +101,7 @@ export class ScylloClient<Tables extends TableScheme> {
         if (this.debug)
             this.log(`[Scyllo][Debug]\t${query}\n${args.join(' ')}`);
 
-        return await this.client.execute(query, args);
+        return await this.client.execute(query, args, { prepare: this.prepare });
     }
 
     async query(query: QueryBuild): Promise<types.ResultSet> {
@@ -206,7 +226,7 @@ export class ScylloClient<Tables extends TableScheme> {
     async dropTable<Table extends keyof Tables>(
         table: Table
     ): Promise<types.ResultSet> {
-        return await this.rawWithParams('DROP TABLE ?', [table]);
+        return await this.raw('DROP TABLE ' + table);
     }
     /**
      * Create

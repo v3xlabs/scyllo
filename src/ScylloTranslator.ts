@@ -1,6 +1,6 @@
 import { types } from 'cassandra-driver';
 
-export type ScylloSafeType = string | number | types.Long | boolean;
+export type ScylloSafeType = string | number | types.Long | boolean | object;
 export type ValidDataType =
     | string
     | number
@@ -11,10 +11,6 @@ export type ValidDataType =
 
 export const toScyllo: (a: ValidDataType) => ScylloSafeType = (a) => {
     if (a instanceof types.Long) return a;
-
-    if (Array.isArray(a) || a instanceof Object) {
-        return JSON.stringify(a);
-    }
 
     return a;
 };
