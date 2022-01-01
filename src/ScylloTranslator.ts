@@ -14,20 +14,22 @@ export const toScyllo: (a: ValidDataType) => ScylloSafeType = (a) => {
     if (a instanceof types.Long) return a;
 
     if (Array.isArray(a)) {
-        return JSON.stringify(a);
+        return JSON.stringify(a).replace(/"/g, '\'');
     }
     
     if (a instanceof Object) {
-        let stringed = JSON.stringify(a);
+        let stringed = JSON.stringify(a).replace(/"/g, '\'');
         
         Object.entries(a).forEach(([key, value]) => {
             if (value instanceof Long) {
-                stringed = stringed.replace(`"${key}":"${value.toString()}"`, `"${key}":${value.toString()}`);
+                stringed = stringed.replace(`'${key}':'${value.toString()}'`, `'${key}':${value.toString()}`);
             }
         });
 
         return stringed;
     }
+
+    if (typeof a === 'string') return `'${a}'`;
 
     return a;
 };
