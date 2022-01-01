@@ -125,7 +125,7 @@ export class ScylloClient<Tables extends TableScheme> {
         select: '*' | ColumnName[],
         criteria?: { [key in keyof Tables[Table]]?: Tables[Table][key] | string },
         extra?: string
-    ): Promise<Pick<Tables[Table], ColumnName>> {
+    ): Promise<Pick<Tables[Table], ColumnName> | undefined> {
         const query = selectOneFromRaw<Tables, Table>(
             this.keyspace,
             table,
