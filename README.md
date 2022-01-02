@@ -19,7 +19,7 @@
   - [createLocalIndex](#createlocalindex)
   - [useKeyspace](#usekeyspace)
   - [createKeyspace](#createkeyspace)
-    - [dropping a keyspace](#dropping-a-keyspace)
+  - [dropKeyspace](#dropkeyspace)
   - [awaitConnection](#awaitconnection)
   - [shutdown](#shutdown)
   - [raw / rawWithParams](#raw--rawwithparams)
@@ -324,12 +324,18 @@ A keyspace with replicationClass and replicationFactor
 await DB.useKeyspace('myotherkeyspace', 'SimpleStrategy', 1);
 ```
 
-#### dropping a keyspace
+### dropKeyspace
 
-There is not yet an function for dropping a keyspace, however this can be done by sending it as a raw query (see #raw--rawwithparams)
+Dropping a keyspace is a very simple process.
 
 ```ts
-await DB.raw('DROP KEYSPACE mykeyspace');
+await DB.dropKeyspace('mykeyspace');
+```
+
+By default, it will only drop the keyspace if it exists. If you want to try to drop the keyspace without `IF EXISTS`, then you can pass in a boolean as the second argument. Note that this will throw an error if the keyspace doesn't exist.
+
+```ts
+await DB.dropKeyspace('mykeyspace', false);
 ```
 
 ### awaitConnection
