@@ -28,6 +28,8 @@
 - [Debug Mode & Logging](#debug-mode--logging)
 - [Type Conversion](#type-conversion)
 - [Known Restrictions](#known-restrictions)
+- [Contributors](#contributors)
+- [LICENSE](#license)
 
 ## Installation
 
@@ -180,6 +182,12 @@ const userObject: User = {user_id: "12345", username: "lucemans"};
 await DB.insertInto('users', userObject);
 ```
 
+Adding extra values to this query should be as simple as
+
+```ts
+await DB.insertInto('users', {user_id: "12345", username: "lucemans"}, "ALLOW FILTERING");
+```
+
 ### deleteFrom
 
 Deleting fromt he database can be done in a multitude of ways. In the event of deleting the entire row from the table, you can do it like so:
@@ -196,12 +204,24 @@ In the event you want to simply delete/clear one of the cells in a specific row 
 await DB.deleteFrom('users', ['username'], {user_id: "12345"});
 ```
 
+Adding extra values to this query should be as simple as
+
+```ts
+await DB.deleteFrom('users', ['username'], {user_id: "12345"}, "ALLOW FILTERING");
+```
+
 ### update
 
 Update allows you to edit only some parts of a row. This is done by passing an object with the values you want to update and the criteria to find the row you want to update.
 
 ```ts
 await DB.update('users', {username: "lucemans"}, {user_id: "12345"})
+```
+
+Adding extra values to this query should be as simple as
+
+```ts
+await DB.update('users', {username: "lucemans"}, {user_id: "12345"}, "ALLOW FILTERING");
 ```
 
 ### createTable
