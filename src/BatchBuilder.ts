@@ -1,27 +1,27 @@
-import { LogMethod } from '@lvksh/logger';
-import { Client, types } from 'cassandra-driver';
+import { types } from 'cassandra-driver';
 import { inspect } from 'util';
 
-import { createIndexRaw, createLocalIndexRaw, createTableRaw, deleteFromRaw, insertIntoRaw, QueryBuild, ScylloClientOptions, TableCreateLayout, TableScheme, updateRaw } from '.';
-
-type BuilderOptions = Omit<ScylloClientOptions, 'client'> & { client: Client, keyspace: string }
+import {
+    createIndexRaw,
+    createLocalIndexRaw,
+    createTableRaw,
+    deleteFromRaw,
+    insertIntoRaw,
+    QueryBuild,
+    ScylloClient,
+    TableCreateLayout,
+    TableScheme,
+    updateRaw,
+} from '.';
 
 // implements all methods except the select ones, since batch selecting something doesn't really make sense
+
 export class BatchBuilder<Tables extends TableScheme> {
-    client: Client;
     keyspace: string;
-    debug:  boolean;
-    log: LogMethod;
-    prepare: boolean;
+    queries: QueryBuild[] = [];
 
-    private queries: QueryBuild[] = [];
-
-    constructor(opts: BuilderOptions) {
-        this.client = opts.client;
-        this.keyspace = opts.keyspace;
-        this.debug = !!opts.debug;
-        this.log = opts.log || console.log;
-        this.prepare = opts.prepare ?? true;
+    constructor(public client: ScylloClient<Tables>) {
+        this.keyspace = client.keyspace;
     }
 
     query(query: QueryBuild) {
@@ -39,7 +39,7 @@ export class BatchBuilder<Tables extends TableScheme> {
     }
 
     useKeyspace(keyspace: string, createIfNotExists = false) {
-        if(createIfNotExists) this.createKeyspace(keyspace);
+        if (createIfNotExists) this.createKeyspace(keyspace);
 
         this.keyspace = keyspace;
 
@@ -47,7 +47,9 @@ export class BatchBuilder<Tables extends TableScheme> {
     }
 
     dropKeyspace(keyspace: string, ifExists = true) {
-        return this.raw(`DROP KEYSPACE${ifExists ? 'IF EXISTS' : ''} ${keyspace}`);
+        return this.raw(
+            `DROP KEYSPACE${ifExists ? 'IF EXISTS' : ''} ${keyspace}`
+        );
     }
 
     insertInto<Table extends keyof Tables>(
@@ -55,7 +57,12 @@ export class BatchBuilder<Tables extends TableScheme> {
         obj: Partial<Tables[Table]>,
         extra?: string
     ) {
-        const query = insertIntoRaw<Tables, Table>(this.keyspace, table, obj, extra);
+        const query = insertIntoRaw<Tables, Table>(
+            this.keyspace,
+            table,
+            obj,
+            extra
+        );
 
         return this.query(query);
     }
@@ -77,7 +84,10 @@ export class BatchBuilder<Tables extends TableScheme> {
         return this.query(query);
     }
 
-    deleteFrom<Table extends keyof Tables, ColumnName extends keyof Tables[Table]>(
+    deleteFrom<
+        Table extends keyof Tables,
+        ColumnName extends keyof Tables[Table]
+    >(
         table: Table,
         fields: '*' | ColumnName[],
         criteria: { [key in ColumnName]?: Tables[Table][key] | string },
@@ -102,7 +112,10 @@ export class BatchBuilder<Tables extends TableScheme> {
         return this.raw('DROP TABLE ' + table);
     }
 
-    createTable<Table extends keyof Tables, ColumnName extends keyof Tables[Table]>(
+    createTable<
+        Table extends keyof Tables,
+        ColumnName extends keyof Tables[Table]
+    >(
         table: Table,
         createIfNotExists: boolean,
         columns: TableCreateLayout<Tables[Table]>,
@@ -131,39 +144,56 @@ export class BatchBuilder<Tables extends TableScheme> {
         );
     }
 
-    createIndex<Table extends keyof Tables, ColumnName extends keyof Tables[Table]>(
-        table: Table,
-        materialized_name: string,
-        column_to_index: ColumnName
-    ) {
-        const query = createIndexRaw<Tables, Table, ColumnName>(this.keyspace, table, materialized_name, column_to_index);
+    createIndex<
+        Table extends keyof Tables,
+        ColumnName extends keyof Tables[Table]
+    >(table: Table, materialized_name: string, column_to_index: ColumnName) {
+        const query = createIndexRaw<Tables, Table, ColumnName>(
+            this.keyspace,
+            table,
+            materialized_name,
+            column_to_index
+        );
 
         return this.query(query);
     }
 
-    createLocalIndex<Table extends keyof Tables, ColumnName extends keyof Tables[Table]>(
+    createLocalIndex<
+        Table extends keyof Tables,
+        ColumnName extends keyof Tables[Table]
+    >(
         table: Table,
         materialized_name: string,
         primary_column: ColumnName,
         column_to_index: ColumnName
     ) {
-        const query = createLocalIndexRaw<Tables, Table, ColumnName>(this.keyspace, table, materialized_name, primary_column, column_to_index);
+        const query = createLocalIndexRaw<Tables, Table, ColumnName>(
+            this.keyspace,
+            table,
+            materialized_name,
+            primary_column,
+            column_to_index
+        );
 
         return this.query(query);
     }
 
     async execute(): Promise<types.ResultSet> {
-        if(this.debug) {
-            for(const { query, args } of this.queries) {
-                if(this.log == console.log) {
-                    this.log(`[Scyllo][Debug][Batch] ${query}\n${inspect(args)}`);
+        if (this.client.debug) {
+            for (const { query, args } of this.queries) {
+                if (this.client.log == console.log) {
+                    this.client.log(
+                        `[Scyllo][Debug][Batch] ${query}\n${inspect(args)}`
+                    );
                 } else {
-                    this.log(query, args);
+                    this.client.log(query, args);
                 }
             }
         }
 
-        return await this.client.batch(this.queries.map(({ query, args }) => ({ query, params: args })), { prepare: this.prepare });
+        return await this.client.client.batch(
+            this.queries.map(({ query, args }) => ({ query, params: args })),
+            { prepare: this.client.prepare }
+        );
     }
-
 }

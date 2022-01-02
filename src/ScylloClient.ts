@@ -1,6 +1,10 @@
 import { LogMethod } from '@lvksh/logger';
-import { Client, DseClientOptions as CassandraConfig, types } from 'cassandra-driver';
-import {inspect} from 'util';
+import {
+    Client,
+    DseClientOptions as CassandraConfig,
+    types,
+} from 'cassandra-driver';
+import { inspect } from 'util';
 
 import {
     ColumnType,
@@ -10,7 +14,8 @@ import {
     deleteFromRaw,
     insertIntoRaw,
     QueryBuild,
-    updateRaw} from './';
+    updateRaw,
+} from './';
 import { BatchBuilder } from './BatchBuilder';
 import { selectFromRaw, selectOneFromRaw } from './QueryBuilder';
 import { fromScyllo, ValidDataType } from './ScylloTranslator';
@@ -32,13 +37,13 @@ export type ScylloClientOptions = {
          * Name of the keyspace you would like to use
          * -scyllo was here
          */
-        keyspace: string,
+        keyspace: string;
         /**
          * Name of the datacenter you would like to use,
          * This can be completely arbitrary and is used for routing.
          * -scyllo was here
          */
-        localDataCenter: string
+        localDataCenter: string;
     };
     /**
      * Whether to prepare inputed args for query
@@ -115,7 +120,9 @@ export class ScylloClient<Tables extends TableScheme> {
             }
         }
 
-        return await this.client.execute(query, args, { prepare: this.prepare });
+        return await this.client.execute(query, args, {
+            prepare: this.prepare,
+        });
     }
 
     async query(query: QueryBuild): Promise<types.ResultSet> {
@@ -135,16 +142,23 @@ export class ScylloClient<Tables extends TableScheme> {
      * @param {boolean} [ifExists=true] - Whether to throw an error if the keyspace does not exist.
      */
     async dropKeyspace(keyspace: string, ifExists: boolean = true) {
-        return await this.raw(`DROP KEYSPACE${ifExists ? ' IF EXISTS' : ''} ${keyspace};`);
+        return await this.raw(
+            `DROP KEYSPACE${ifExists ? ' IF EXISTS' : ''} ${keyspace};`
+        );
     }
     /**
      * Select from
      * a table and return based on criteria.
      */
-    async selectFrom<TableName extends keyof Tables, ColumnName extends keyof Tables[TableName]>(
+    async selectFrom<
+        TableName extends keyof Tables,
+        ColumnName extends keyof Tables[TableName]
+    >(
         table: TableName,
         select: '*' | ColumnName[],
-        criteria?: { [key in keyof Tables[TableName]]?: Tables[TableName][key] | string },
+        criteria?: {
+            [key in keyof Tables[TableName]]?: Tables[TableName][key] | string;
+        },
         extra?: string
     ): Promise<Pick<Tables[TableName], ColumnName>[]> {
         const query = selectFromRaw<Tables, TableName>(
@@ -156,16 +170,24 @@ export class ScylloClient<Tables extends TableScheme> {
         );
         const result = await this.query(query);
 
-        return result.rows.map(fromObjScyllo) as Pick<Tables[TableName], ColumnName>[];
+        return result.rows.map(fromObjScyllo) as Pick<
+            Tables[TableName],
+            ColumnName
+        >[];
     }
     /**
      * Select one from
      * a table and return based on criteria.
      */
-    async selectOneFrom<Table extends keyof Tables, ColumnName extends keyof Tables[Table]>(
+    async selectOneFrom<
+        Table extends keyof Tables,
+        ColumnName extends keyof Tables[Table]
+    >(
         table: Table,
         select: '*' | ColumnName[],
-        criteria?: { [key in keyof Tables[Table]]?: Tables[Table][key] | string },
+        criteria?: {
+            [key in keyof Tables[Table]]?: Tables[Table][key] | string;
+        },
         extra?: string
     ): Promise<Pick<Tables[Table], ColumnName> | undefined> {
         const query = selectOneFromRaw<Tables, Table>(
@@ -191,7 +213,12 @@ export class ScylloClient<Tables extends TableScheme> {
         obj: Partial<Tables[Table]>,
         extra?: string
     ): Promise<types.ResultSet> {
-        const query = insertIntoRaw<Tables, Table>(this.keyspace, table, obj, extra);
+        const query = insertIntoRaw<Tables, Table>(
+            this.keyspace,
+            table,
+            obj,
+            extra
+        );
 
         return await this.query(query);
     }
@@ -199,7 +226,10 @@ export class ScylloClient<Tables extends TableScheme> {
      * Update an entry in
      * a table.
      */
-    async update<Table extends keyof Tables, ColumnName extends keyof Tables[Table]>(
+    async update<
+        Table extends keyof Tables,
+        ColumnName extends keyof Tables[Table]
+    >(
         table: Table,
         obj: Partial<Tables[Table]>,
         criteria: { [key in ColumnName]?: Tables[Table][key] | string },
@@ -219,7 +249,10 @@ export class ScylloClient<Tables extends TableScheme> {
      * Delete from
      * a table based on criteria.
      */
-    async deleteFrom<Table extends keyof Tables, ColumnName extends keyof Tables[Table]>(
+    async deleteFrom<
+        Table extends keyof Tables,
+        ColumnName extends keyof Tables[Table]
+    >(
         table: Table,
         fields: '*' | ColumnName[],
         criteria: { [key in ColumnName]?: Tables[Table][key] | string },
@@ -257,7 +290,10 @@ export class ScylloClient<Tables extends TableScheme> {
      * Create
      * a table.
      */
-    async createTable<Table extends keyof Tables, ColumnName extends keyof Tables[Table]>(
+    async createTable<
+        Table extends keyof Tables,
+        ColumnName extends keyof Tables[Table]
+    >(
         table: Table,
         createIfNotExists: boolean,
         columns: TableCreateLayout<Tables[Table]>,
@@ -291,36 +327,53 @@ export class ScylloClient<Tables extends TableScheme> {
 
     /**
      * Create a Global Secondary Index
-     * 
+     *
      * https://docs.scylladb.com/using-scylla/secondary-indexes/
      */
-    async createIndex<Table extends keyof Tables, ColumnName extends keyof Tables[Table]>(
+    async createIndex<
+        Table extends keyof Tables,
+        ColumnName extends keyof Tables[Table]
+    >(
         table: Table,
         materialized_name: string,
         column_to_index: ColumnName
     ): Promise<types.ResultSet> {
-        const query = createIndexRaw<Tables, Table, ColumnName>(this.keyspace, table, materialized_name, column_to_index);
+        const query = createIndexRaw<Tables, Table, ColumnName>(
+            this.keyspace,
+            table,
+            materialized_name,
+            column_to_index
+        );
 
         return await this.query(query);
     }
 
     /**
      * Create a Local Secondary Index
-     * 
+     *
      * https://docs.scylladb.com/using-scylla/local-secondary-indexes/
      */
-    async createLocalIndex<Table extends keyof Tables, ColumnName extends keyof Tables[Table]>(
+    async createLocalIndex<
+        Table extends keyof Tables,
+        ColumnName extends keyof Tables[Table]
+    >(
         table: Table,
         materialized_name: string,
         primary_column: ColumnName,
         column_to_index: ColumnName
     ): Promise<types.ResultSet> {
-        const query = createLocalIndexRaw<Tables, Table, ColumnName>(this.keyspace, table, materialized_name, primary_column, column_to_index);
+        const query = createLocalIndexRaw<Tables, Table, ColumnName>(
+            this.keyspace,
+            table,
+            materialized_name,
+            primary_column,
+            column_to_index
+        );
 
         return await this.query(query);
     }
 
     batch(): BatchBuilder<Tables> {
-        return new BatchBuilder({ ...this });
+        return new BatchBuilder(this);
     }
 }
