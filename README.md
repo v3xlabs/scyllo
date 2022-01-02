@@ -24,6 +24,7 @@
   - [shutdown](#shutdown)
   - [raw / rawWithParams](#raw--rawwithparams)
   - [query](#query)
+  - [batch](#batch)
 - [What to use for ID's](#what-to-use-for-ids)
 - [Debug Mode & Logging](#debug-mode--logging)
 - [Type Conversion](#type-conversion)
@@ -407,6 +408,19 @@ await DB.query({
   args: [Long.fromString('987654321'), 'lucemans', 'noreply@lucemans.nl']
 });
 ```
+
+### batch
+
+The batch function allows you to execute multiple queries simultaneously. This can save bandwidth and the time it takes for those queries to finish.
+```ts
+await DB.batch()
+        .insertInto('users', { username: 'Antony', uid: 123456000 })
+        .insertInto('users', { username: 'Luc', uid: 123456001 })
+        .update('users', { username: "Lucemans" }, { uid: 123456001 })
+        .execute()
+```
+**Note:** This function supports every type of query except select queries.
+
 
 ## What to use for ID's
 

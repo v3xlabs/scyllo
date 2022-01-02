@@ -22,7 +22,7 @@ beforeAll(async () => {
 });
 
 it('Can switch keyspace', async () => {
-    expect(DB.useKeyspace('scyllo'));
+    expect(DB.useKeyspace('scyllojestsuite'));
 });
 
 it('Can fetch every user from the database', async () => {
