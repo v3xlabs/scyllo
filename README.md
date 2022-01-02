@@ -411,7 +411,7 @@ await DB.query({
 
 ### batch
 
-The batch function allows you to execute multiple queries simultaneously. This can save bandwidth and the time it takes to those queries to finish.
+The batch function allows you to execute multiple queries simultaneously. This can save bandwidth and the time it takes for those queries to finish.
 ```ts
 await DB.batch()
         .insertInto('users', { username: 'Antony', uid: 123456000 })
