@@ -187,9 +187,10 @@ export class ScylloClient<Tables extends TableScheme> {
      */
     async insertInto<Table extends keyof Tables>(
         table: Table,
-        obj: Partial<Tables[Table]>
+        obj: Partial<Tables[Table]>,
+        extra?: string
     ): Promise<types.ResultSet> {
-        const query = insertIntoRaw<Tables, Table>(this.keyspace, table, obj);
+        const query = insertIntoRaw<Tables, Table>(this.keyspace, table, obj, extra);
 
         return await this.query(query);
     }
@@ -200,13 +201,15 @@ export class ScylloClient<Tables extends TableScheme> {
     async update<Table extends keyof Tables, ColumnName extends keyof Tables[Table]>(
         table: Table,
         obj: Partial<Tables[Table]>,
-        criteria: { [key in ColumnName]?: Tables[Table][key] | string }
+        criteria: { [key in ColumnName]?: Tables[Table][key] | string },
+        extra?: string
     ): Promise<types.ResultSet> {
         const query = updateRaw<Tables, Table, ColumnName>(
             this.keyspace,
             table,
             obj,
-            criteria
+            criteria,
+            extra
         );
 
         return await this.query(query);

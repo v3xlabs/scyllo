@@ -61,12 +61,13 @@ export const insertIntoRaw = <
         keyspace: string,
         table: F,
         obj: Partial<TableMap[F]>,
+        extra?: string,
     ): QueryBuild => ({
         query: `INSERT INTO ${keyspace}.${table} (${Object.keys(obj).join(
             ', ',
         )}) VALUES (${Object.keys(obj)
             .map(() => '?')
-            .join(', ')})`,
+            .join(', ')}) ${extra || ''}`,
         args: Object.values(obj).map(toScyllo),
     });
 
@@ -79,6 +80,7 @@ export const updateRaw = <
         table: TableName,
         obj: Partial<TableMap[TableName]>,
         criteria: { [key in ColumnName]?: TableMap[TableName][key] | string },
+        extra?: string,
     ): QueryBuild => ({
         query: `UPDATE ${keyspace}.${table} SET ${Object.keys(obj)
             .map((it) => it + '=?')
@@ -89,7 +91,7 @@ export const updateRaw = <
                   .map((crit) => (crit += '=?'))
                   .join(' AND ')
                 : ''
-        }`.trim(),
+        } ${extra || ''}`.trim(),
         args: [...Object.values(obj), ...(criteria ? Object.values(criteria) : [])],
     });
 
