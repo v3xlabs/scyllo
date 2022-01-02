@@ -1,6 +1,4 @@
 import { types } from 'cassandra-driver';
-import Long from 'long';
-
 
 export type User = {
     username: string,

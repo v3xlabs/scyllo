@@ -11,6 +11,7 @@ import {
     insertIntoRaw,
     QueryBuild,
     updateRaw} from './';
+import { BatchBuilder } from './BatchBuilder';
 import { selectFromRaw, selectOneFromRaw } from './QueryBuilder';
 import { fromScyllo, ValidDataType } from './ScylloTranslator';
 
@@ -317,5 +318,9 @@ export class ScylloClient<Tables extends TableScheme> {
         const query = createLocalIndexRaw<Tables, Table, ColumnName>(this.keyspace, table, materialized_name, primary_column, column_to_index);
 
         return await this.query(query);
+    }
+
+    batch(): BatchBuilder<Tables> {
+        return new BatchBuilder({ ...this });
     }
 }
