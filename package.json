@@ -1,6 +1,5 @@
 {
     "name": "scyllo",
-    "version": "0.9.3",
     "description": "The Cassandra/Scylla library you didn't want but got anyways.",
     "main": "lib/index.js",
     "types": "lib/index.d.ts",
@@ -19,7 +18,7 @@
         "database",
         "client"
     ],
-    "license": "MIT",
+    "license": "LGPL-3.0-or-later",
     "devDependencies": {
         "@types/jest": "^27.0.2",
         "@typescript-eslint/parser": "^5.2.0",
