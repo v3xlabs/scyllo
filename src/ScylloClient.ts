@@ -128,6 +128,14 @@ export class ScylloClient<Tables extends TableScheme> {
 
         return await this.raw(`USE ${keyspace};`);
     }
+
+    /**
+     * @param {string} keyspace - The name of the keyspace to drop.
+     * @param {boolean} [ifExists=true] - Whether to throw an error if the keyspace does not exist.
+     */
+    async dropKeyspace(keyspace: string, ifExists: boolean = true) {
+        return await this.raw(`DROP KEYSPACE${ifExists ? ' IF EXISTS' : ''} ${keyspace};`);
+    }
     /**
      * Select from
      * a table and return based on criteria.
