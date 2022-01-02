@@ -446,3 +446,11 @@ Limited multi-keyspace support. This is something that is on our roadmap and hop
 As of right now scyllo is unable to provide you with a smooth multi-keyspace experience, but this is in the works.
 
 Query-ing restrictions are currently limited to only allow direct equality checks, for ex. `user_id = 5` etc. We hope to be able to support `user_id > 5` and `user_id >= 5` in the near future as well. If this is something you are interested in, please let us know.
+
+## Contributors
+
+[![](https://contrib.rocks/image?repo=lvkdotsh/scyllo)](https://github.com/lvkdotsh/scyllo/graphs/contributors)
+
+## LICENSE
+
+This package is licensed under the [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl-3.0).
