@@ -251,14 +251,15 @@ export class ScylloClient<Tables extends TableScheme> {
      */
     async deleteFrom<
         Table extends keyof Tables,
-        ColumnName extends keyof Tables[Table]
+        ColumnName extends keyof Tables[Table],
+        DeletedColumnName extends keyof Tables[Table]
     >(
         table: Table,
-        fields: '*' | ColumnName[],
+        fields: '*' | DeletedColumnName[],
         criteria: { [key in ColumnName]?: Tables[Table][key] | string },
         extra?: string
     ): Promise<types.ResultSet> {
-        const query = deleteFromRaw<Tables, Table, ColumnName>(
+        const query = deleteFromRaw<Tables, Table, ColumnName, DeletedColumnName>(
             this.keyspace,
             table,
             fields,

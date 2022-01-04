@@ -1,10 +1,14 @@
-import { selectOneFromRaw } from "../../lib";
+import { deleteFromRaw } from "../../lib";
 
 // fix
-it('Can insert a user into the database', async () => {
-    expect(selectOneFromRaw<{'users': {uid: number, username: string}}, 'users'>('scyllo', 'users', '*', {uid: 1234567890, username: 'Jest'})).toEqual({query: 'SELECT * FROM scyllo.users WHERE uid=? AND username=? LIMIT 1', args: [1234567890, 'Jest']});
+it('Can delete whole row', async () => {
+    expect(deleteFromRaw<{'users': {uid: number, username: string}}, 'users', 'uid' | 'username', 'uid' | 'username'>('scyllo', 'users', '*', {uid: 1234567890, username: 'Jest'})).toEqual({query: 'DELETE FROM scyllo.users WHERE uid=? AND username=?', args: [1234567890, 'Jest']});
 });
 
-it('Can add extra args to query', async () => {
-    expect(selectOneFromRaw<{'users': {uid: number, username: string}}, 'users'>('scyllo', 'users', '*', {uid: 1234567890, username: 'Jest'}, "ALLOW FILTERING")).toEqual({query: 'SELECT * FROM scyllo.users WHERE uid=? AND username=? LIMIT 1 ALLOW FILTERING', args: [1234567890, 'Jest']});
+it('Can delete single field', async () => {
+    expect(deleteFromRaw<{'users': {uid: number, username: string}}, 'users', 'uid' | 'username', 'uid' | 'username'>('scyllo', 'users', ['username'], {uid: 1234567890, username: 'Jest'})).toEqual({query: 'DELETE username FROM scyllo.users WHERE uid=? AND username=?', args: [1234567890, 'Jest']});
+});
+
+it('Can delete multiple fields', async () => {
+    expect(deleteFromRaw<{'users': {uid: number, username: string}}, 'users', 'uid' | 'username', 'uid' | 'username'>('scyllo', 'users', ['username', 'uid'], {uid: 1234567890, username: 'Jest'})).toEqual({query: 'DELETE username,uid FROM scyllo.users WHERE uid=? AND username=?', args: [1234567890, 'Jest']});
 });
