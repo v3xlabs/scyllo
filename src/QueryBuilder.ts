@@ -99,16 +99,17 @@ export const deleteFromRaw = <
     TableMap extends TableScheme,
     TableName extends keyof TableMap,
     ColumnName extends keyof TableMap[TableName],
+    DeletedColumnName extends keyof TableMap[TableName],
 >(
         keyspace: string,
         table: TableName,
-        fields: '*' | ColumnName[],
+        fields: '*' | DeletedColumnName[],
         criteria: { [key in ColumnName]?: TableMap[TableName][key] | string },
         extra?: string,
     ): QueryBuild => ({
-        query: `DELETE ${
-            fields == '*' ? '' : fields.join(',')
-        } ${keyspace}.${table} ${
+        query: `DELETE${
+            fields == '*' ? '' : ' ' + fields.join(',')
+        } FROM ${keyspace}.${table} ${
             criteria && Object.keys(criteria).length > 0
                 ? 'WHERE ' +
               Object.keys(criteria)
