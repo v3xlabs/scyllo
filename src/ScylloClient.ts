@@ -4,7 +4,7 @@ import {
     DseClientOptions as CassandraConfig,
     types,
 } from 'cassandra-driver';
-import { inspect } from 'util';
+import { inspect } from 'node:util';
 
 import {
     ColumnType,
@@ -63,13 +63,14 @@ export type ScylloClientOptions = {
     debug?: boolean;
 };
 
-const fromObjScyllo = (row: types.Row) =>
+const fromObjectScyllo = (row: types.Row) =>
     Object.assign(
         {},
         ...row
             .keys()
             .map((item: any) => ({ [item]: fromScyllo(row.get(item)) }))
     );
+
 export class ScylloClient<Tables extends TableScheme> {
     keyspace: string;
     client: Client;
@@ -111,16 +112,19 @@ export class ScylloClient<Tables extends TableScheme> {
         return await this.client.execute(query);
     }
 
-    async rawWithParams(query: string, args: any[]): Promise<types.ResultSet> {
+    async rawWithParams(
+        query: string,
+        arguments_: any[]
+    ): Promise<types.ResultSet> {
         if (this.debug) {
             if (this.log == console.log) {
-                this.log(`[Scyllo][Debug] ${query}\n${inspect(args)}`);
+                this.log(`[Scyllo][Debug] ${query}\n${inspect(arguments_)}`);
             } else {
-                this.log(query, args);
+                this.log(query, arguments_);
             }
         }
 
-        return await this.client.execute(query, args, {
+        return await this.client.execute(query, arguments_, {
             prepare: this.prepare,
         });
     }
@@ -170,7 +174,7 @@ export class ScylloClient<Tables extends TableScheme> {
         );
         const result = await this.query(query);
 
-        return result.rows.map(fromObjScyllo) as Pick<
+        return result.rows.map(fromObjectScyllo) as Pick<
             Tables[TableName],
             ColumnName
         >[];
@@ -199,7 +203,7 @@ export class ScylloClient<Tables extends TableScheme> {
         );
         const result = await this.query(query);
 
-        return result.rows.slice(0, 1).map(fromObjScyllo)[0] as Pick<
+        return result.rows.slice(0, 1).map(fromObjectScyllo).at(0) as Pick<
             Tables[Table],
             ColumnName
         >;
@@ -210,13 +214,13 @@ export class ScylloClient<Tables extends TableScheme> {
      */
     async insertInto<Table extends keyof Tables>(
         table: Table,
-        obj: Partial<Tables[Table]>,
+        object: Partial<Tables[Table]>,
         extra?: string
     ): Promise<types.ResultSet> {
         const query = insertIntoRaw<Tables, Table>(
             this.keyspace,
             table,
-            obj,
+            object,
             extra
         );
 
@@ -231,14 +235,14 @@ export class ScylloClient<Tables extends TableScheme> {
         ColumnName extends keyof Tables[Table]
     >(
         table: Table,
-        obj: Partial<Tables[Table]>,
+        object: Partial<Tables[Table]>,
         criteria: { [key in ColumnName]?: Tables[Table][key] | string },
         extra?: string
     ): Promise<types.ResultSet> {
         const query = updateRaw<Tables, Table, ColumnName>(
             this.keyspace,
             table,
-            obj,
+            object,
             criteria,
             extra
         );
@@ -259,13 +263,12 @@ export class ScylloClient<Tables extends TableScheme> {
         criteria: { [key in ColumnName]?: Tables[Table][key] | string },
         extra?: string
     ): Promise<types.ResultSet> {
-        const query = deleteFromRaw<Tables, Table, ColumnName, DeletedColumnName>(
-            this.keyspace,
-            table,
-            fields,
-            criteria,
-            extra
-        );
+        const query = deleteFromRaw<
+            Tables,
+            Table,
+            ColumnName,
+            DeletedColumnName
+        >(this.keyspace, table, fields, criteria, extra);
 
         return await this.query(query);
     }

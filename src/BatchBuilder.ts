@@ -1,5 +1,5 @@
 import { types } from 'cassandra-driver';
-import { inspect } from 'util';
+import { inspect } from 'node:util';
 
 import {
     createIndexRaw,
@@ -34,8 +34,8 @@ export class BatchBuilder<Tables extends TableScheme> {
         return this.query({ query, args: [] });
     }
 
-    rawWithParams(query: string, args: any[]) {
-        return this.query({ query, args });
+    rawWithParams(query: string, arguments_: any[]) {
+        return this.query({ query, args: arguments_ });
     }
 
     useKeyspace(keyspace: string, createIfNotExists = false) {
@@ -54,13 +54,13 @@ export class BatchBuilder<Tables extends TableScheme> {
 
     insertInto<Table extends keyof Tables>(
         table: Table,
-        obj: Partial<Tables[Table]>,
+        object: Partial<Tables[Table]>,
         extra?: string
     ) {
         const query = insertIntoRaw<Tables, Table>(
             this.keyspace,
             table,
-            obj,
+            object,
             extra
         );
 
@@ -69,14 +69,14 @@ export class BatchBuilder<Tables extends TableScheme> {
 
     update<Table extends keyof Tables, ColumnName extends keyof Tables[Table]>(
         table: Table,
-        obj: Partial<Tables[Table]>,
+        object: Partial<Tables[Table]>,
         criteria: { [key in ColumnName]?: Tables[Table][key] | string },
         extra?: string
     ) {
         const query = updateRaw<Tables, Table, ColumnName>(
             this.keyspace,
             table,
-            obj,
+            object,
             criteria,
             extra
         );
@@ -94,13 +94,12 @@ export class BatchBuilder<Tables extends TableScheme> {
         criteria: { [key in ColumnName]?: Tables[Table][key] | string },
         extra?: string
     ) {
-        const query = deleteFromRaw<Tables, Table, ColumnName, DeletedColumnName>(
-            this.keyspace,
-            table,
-            fields,
-            criteria,
-            extra
-        );
+        const query = deleteFromRaw<
+            Tables,
+            Table,
+            ColumnName,
+            DeletedColumnName
+        >(this.keyspace, table, fields, criteria, extra);
 
         return this.query(query);
     }
