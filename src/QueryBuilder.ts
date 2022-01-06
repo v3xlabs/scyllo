@@ -68,7 +68,7 @@ export const insertIntoRaw = <
     )}) VALUES (${Object.keys(object)
         .map(() => '?')
         .join(', ')}) ${extra || ''}`,
-    args: Object.values(object).map((argument) => toScyllo(argument)),
+    args: Object.values(object).map(toScyllo),
 });
 
 export const updateRaw = <

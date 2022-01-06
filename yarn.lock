@@ -1412,10 +1412,10 @@ eslint-plugin-jest@^25.3.4:
   dependencies:
     "@typescript-eslint/experimental-utils" "^5.0.0"
 
-eslint-plugin-lvksh@^1.2.1:
-  version "1.2.1"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-lvksh/-/eslint-plugin-lvksh-1.2.1.tgz#7d642ff07f8ec75d1c279a9b009510a4f9aeabef"
-  integrity sha512-9nirsUgcGCyzRVr2zdGesaCs19HiAU7V4sKSs1MPqUH9mA1MbpNe8jD3DSt0mjJifPD1x/6DDmPz58VVihohyw==
+eslint-plugin-lvksh@^1.2.2:
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-lvksh/-/eslint-plugin-lvksh-1.2.2.tgz#309c05097000cade8cefbc221c0badb5de91cf22"
+  integrity sha512-J/XiNlV8KL4atsGwVQhREUzFITNGv8AioEtO0eBB7HEp2bQj3F96NUCSpdUGjKm854xlOrxlDyg+pfMU6Eogfw==
   dependencies:
     "@typescript-eslint/parser" "^5.9.0"
     eslint-config-prettier "^8.3.0"
