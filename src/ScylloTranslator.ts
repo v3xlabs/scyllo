@@ -16,12 +16,12 @@ export const toScyllo: (a: ValidDataType) => ScylloSafeType = (a) => {
 };
 
 export const fromScyllo: (a: ScylloSafeType) => ValidDataType = (a) => {
-    if (a instanceof String && a.toString().match(/^[\\{\\[]/)) {
+    if (a instanceof String && /^[[\\{]/.test(a.toString())) {
         let result = '';
 
         try {
             return JSON.stringify(a.toString());
-        } catch (e) {
+        } catch {
             result = '';
             console.error('Error parsing object', a);
         }
