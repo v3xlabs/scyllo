@@ -1,9 +1,10 @@
 import { types } from 'cassandra-driver';
 
-export type ScylloSafeType = string | number | types.Long | boolean | object;
+export type ScylloSafeType = string | number | bigint | types.Long | boolean | object;
 export type ValidDataType =
     | string
     | number
+    | bigint
     | boolean
     | types.Long
     | string[]
