@@ -419,7 +419,7 @@ await DB.batch()
         .update('users', { username: "Lucemans" }, { uid: 123456001 })
         .execute()
 ```
-**Note:** This function supports every type of query except select queries.
+**Note:** This function only supports INSERT, UPDATE and DELETE queries.
 
 
 ## What to use for ID's
