@@ -30,28 +30,6 @@ export class BatchBuilder<Tables extends TableScheme> {
         return this;
     }
 
-    raw(query: string) {
-        return this.query({ query, args: [] });
-    }
-
-    rawWithParams(query: string, arguments_: any[]) {
-        return this.query({ query, args: arguments_ });
-    }
-
-    useKeyspace(keyspace: string, createIfNotExists = false) {
-        if (createIfNotExists) this.createKeyspace(keyspace);
-
-        this.keyspace = keyspace;
-
-        return this.raw(`USE ${keyspace}`);
-    }
-
-    dropKeyspace(keyspace: string, ifExists = true) {
-        return this.raw(
-            `DROP KEYSPACE${ifExists ? 'IF EXISTS' : ''} ${keyspace}`
-        );
-    }
-
     insertInto<Table extends keyof Tables>(
         table: Table,
         object: Partial<Tables[Table]>,
@@ -100,80 +78,6 @@ export class BatchBuilder<Tables extends TableScheme> {
             ColumnName,
             DeletedColumnName
         >(this.keyspace, table, fields, criteria, extra);
-
-        return this.query(query);
-    }
-
-    truncateTable<Table extends keyof Tables>(table: Table) {
-        return this.rawWithParams('TRUNCATE ?', [table]);
-    }
-
-    dropTable<Table extends keyof Tables>(table: Table) {
-        return this.raw('DROP TABLE ' + table);
-    }
-
-    createTable<
-        Table extends keyof Tables,
-        ColumnName extends keyof Tables[Table]
-    >(
-        table: Table,
-        createIfNotExists: boolean,
-        columns: TableCreateLayout<Tables[Table]>,
-        partition: [ColumnName, ColumnName] | ColumnName,
-        clustering?: ColumnName[]
-    ) {
-        const query = createTableRaw(
-            this.keyspace,
-            table,
-            createIfNotExists,
-            columns,
-            partition,
-            clustering
-        );
-
-        return this.query(query);
-    }
-
-    createKeyspace(
-        keyspace: string,
-        replicationClass = 'SimpleStrategy',
-        replicationFactor = 3
-    ) {
-        return this.raw(
-            `CREATE KEYSPACE IF NOT EXISTS ${keyspace} WITH replication = {'class':'${replicationClass}', 'replication_factor' : ${replicationFactor}};`
-        );
-    }
-
-    createIndex<
-        Table extends keyof Tables,
-        ColumnName extends keyof Tables[Table]
-    >(table: Table, materialized_name: string, column_to_index: ColumnName) {
-        const query = createIndexRaw<Tables, Table, ColumnName>(
-            this.keyspace,
-            table,
-            materialized_name,
-            column_to_index
-        );
-
-        return this.query(query);
-    }
-
-    createLocalIndex<
-        Table extends keyof Tables,
-        ColumnName extends keyof Tables[Table]
-    >(
-        table: Table,
-        materialized_name: string,
-        primary_column: ColumnName,
-        column_to_index: ColumnName
-    ) {
-        const query = createLocalIndexRaw<Tables, Table, ColumnName>(
-            this.keyspace,
-            table,
-            materialized_name,
-            primary_column,
-            column_to_index
-        );
 
         return this.query(query);
     }
