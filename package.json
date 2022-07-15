@@ -42,7 +42,7 @@
         "pub": "yarn build && yarn publish --access public"
     },
     "dependencies": {
-        "@lvksh/logger": "^1.4.4",
+        "@lvksh/logger": "^1.6.3",
         "cassandra-driver": "^4.6.3"
     }
 }

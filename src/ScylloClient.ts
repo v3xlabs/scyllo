@@ -1,4 +1,4 @@
-import { LogMethod } from '@lvksh/logger';
+import { LogMethodInput } from '@lvksh/logger';
 import {
     Client,
     DseClientOptions as CassandraConfig,
@@ -22,6 +22,8 @@ import { fromScyllo, ValidDataType } from './ScylloTranslator';
 
 export type DatabaseObject = { [key: string]: ValidDataType } | typeof Object;
 export type TableScheme = { [key: string]: DatabaseObject };
+
+export type LogMethod = (...input: LogMethodInput[]) => unknown;
 
 export type TableCreateLayout<F> = {
     [key in keyof F]: ColumnType;
