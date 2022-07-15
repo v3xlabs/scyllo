@@ -528,10 +528,10 @@
     "@types/yargs" "^16.0.0"
     chalk "^4.0.0"
 
-"@lvksh/logger@^1.4.4":
-  version "1.4.4"
-  resolved "https://registry.yarnpkg.com/@lvksh/logger/-/logger-1.4.4.tgz#7da2af2041f345a38830f85bbdd6b156953d597f"
-  integrity sha512-s5bVsylHOB8Pj/r+Su25n1WMRD1vyl/HFQ5Hd4Q67NgsnjIshukXTReWYO9p9ShOEgyoqEfurFmnMq4G5pDzcQ==
+"@lvksh/logger@^1.6.3":
+  version "1.6.3"
+  resolved "https://registry.yarnpkg.com/@lvksh/logger/-/logger-1.6.3.tgz#c601be2a07528b858f6807d99b3ef3f66f058ee8"
+  integrity sha512-xt7s3k9Dk7oaUH1GxU//vGdKftJ1UZkurwXJ189aB6CxY0cy6ATOSti5iTDh5BMsvEcT6Hk5GL/dF+HaZl+pQA==
 
 "@nodelib/fs.scandir@2.1.5":
   version "2.1.5"
