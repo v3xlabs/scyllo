@@ -144,7 +144,7 @@ export type ColumnTupleType = {
 export type ColumnType =
     | AdvancedColumnType
     | {
-          type: Omit<CassandraTypes, 'map' | 'set' | 'list'>;
+          type: Omit<CassandraTypes, ComplexTypes>;
       };
 
 export type ComplexTypes = 'map' | 'set' | 'list' | 'tuple';
