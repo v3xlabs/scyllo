@@ -449,6 +449,8 @@ const migration2: Migration<Pick<DBType, "something">> = async (database, log) =
   log("message from migration");
 }
 
+// NOTE: please, please, please, please add migrations one after another and not in the middle
+//       ...it breaks stuff
 await DB.migrate([
   migration1,
   migration2
