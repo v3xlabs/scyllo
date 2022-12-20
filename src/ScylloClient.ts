@@ -17,6 +17,7 @@ import {
     updateRaw,
 } from './';
 import { BatchBuilder } from './BatchBuilder';
+import { Migration, runMigrations } from './MigrationHandler';
 import { selectFromRaw, selectOneFromRaw } from './QueryBuilder';
 import { fromScyllo, ValidDataType } from './ScylloTranslator';
 
@@ -100,6 +101,13 @@ export class ScylloClient<Tables extends TableScheme> {
      */
     async shutdown(): Promise<void> {
         return await this.client.shutdown();
+    }
+
+    async migrate(
+        migrations: Migration<Tables>[],
+        logProgress = false
+    ): Promise<void> {
+        return await runMigrations(this, migrations, logProgress);
     }
 
     async raw(query: string): Promise<types.ResultSet> {

@@ -25,6 +25,7 @@
   - [raw / rawWithParams](#raw--rawwithparams)
   - [query](#query)
   - [batch](#batch)
+  - [migrations](#migrations)
 - [What to use for ID's](#what-to-use-for-ids)
 - [Debug Mode & Logging](#debug-mode--logging)
 - [Type Conversion](#type-conversion)
@@ -421,6 +422,38 @@ await DB.batch()
 ```
 **Note:** This function only supports INSERT, UPDATE and DELETE queries.
 
+### migrations
+
+Migrations are an opinionated way of managing database structure changes through development.
+```ts
+type DBType = { user: { id: number }, something: { another_id: number } };
+
+const migration1: Migration<DBType> = async (database) => {
+  await database.createTable(
+    'user',
+    true,
+    { id: { type: 'int' } },
+    'id'
+  );
+}
+
+// doesn't need to be exact DBType
+const migration2: Migration<Pick<DBType, "something">> = async (database, log) => {
+  await database.createTable(
+    'something',
+    true,
+    { another_id: { type: 'int' } },
+    'another_id'
+  );
+
+  log("message from migration");
+}
+
+await DB.migrate([
+  migration1,
+  migration2
+], true); // true enables logging and uses the log function passed to client 
+```
 
 ## What to use for ID's
 
