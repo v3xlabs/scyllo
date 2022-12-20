@@ -26,7 +26,7 @@ export const runMigrations = async <T extends TableScheme>(
     const logFunction = (message: string) =>
         logProgress && client.log(`[Scyllo][Migrations] ${message}`);
 
-    // assume user will not deliberately create a table called __scyllo_migrations with wrong columns
+    // assume user will not deliberately create a table called lib_scyllo_migrations with wrong columns
     // validating that would be a pain, maybe later
     await client.createTable(
         MIGRATION_TABLE_NAME,
