@@ -3,3 +3,4 @@ yarn-error.log
 /lib
 tools/data
 .history
+.idea/
