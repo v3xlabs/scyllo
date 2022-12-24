@@ -5,6 +5,7 @@ import {
     createIndexRaw,
     createLocalIndexRaw,
     createTableRaw,
+    Criteria,
     deleteFromRaw,
     insertIntoRaw,
     QueryBuild,
@@ -48,7 +49,7 @@ export class BatchBuilder<Tables extends TableScheme> {
     update<Table extends keyof Tables, ColumnName extends keyof Tables[Table]>(
         table: Table,
         object: Partial<Tables[Table]>,
-        criteria: { [key in ColumnName]?: Tables[Table][key] | string },
+        criteria: Criteria<Tables[Table]>,
         extra?: string
     ) {
         const query = updateRaw<Tables, Table, ColumnName>(
@@ -69,7 +70,7 @@ export class BatchBuilder<Tables extends TableScheme> {
     >(
         table: Table,
         fields: '*' | DeletedColumnName[],
-        criteria: { [key in ColumnName]?: Tables[Table][key] | string },
+        criteria: Criteria<Tables[Table]>,
         extra?: string
     ) {
         const query = deleteFromRaw<
