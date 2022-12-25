@@ -1,12 +1,46 @@
 import { types } from 'cassandra-driver';
 
-import { TableScheme } from './ScylloClient';
+import { ExpressionByValue, isEqualityExpression } from './EqualityBuilder';
+import { DatabaseObject, TableScheme } from './ScylloClient';
 import { toScyllo } from './ScylloTranslator';
 
 export type QueryBuild = {
     query: string;
     args: any[];
 };
+
+export type Criteria<Table extends DatabaseObject> = {
+    [key in keyof Table]?: Table[key] | string | ExpressionByValue<Table[key]>;
+};
+
+export type GenericCriteriaValue<Table> =
+    | Table[keyof Table]
+    | string
+    | ExpressionByValue<Table[keyof Table]>;
+
+export const renderCriteria = <Table extends DatabaseObject>(
+    criteria: Criteria<Table>
+) =>
+    (
+        Object.entries(criteria) as [
+            string,
+            Table[keyof Table] | string | ExpressionByValue<Table[keyof Table]>
+        ][]
+    )
+        .map(
+            ([variable, crit]) =>
+                variable + (isEqualityExpression(crit) ? crit.operation : '=?')
+        )
+        .join(' AND ');
+
+export const criteriaValues = <Table extends DatabaseObject>(
+    criteria?: Criteria<Table>
+) =>
+    criteria
+        ? (Object.values(criteria) as GenericCriteriaValue<Table>[]).flatMap(
+              (value) => (isEqualityExpression(value) ? value.values : value)
+          )
+        : [];
 
 export const selectFromRaw = <
     TableMap extends TableScheme,
@@ -15,20 +49,17 @@ export const selectFromRaw = <
     keyspace: string,
     table: F,
     select: '*' | (keyof TableMap[F])[],
-    criteria?: { [key in keyof TableMap[F]]?: TableMap[F][key] | string },
+    criteria?: Criteria<TableMap[F]>,
     extra?: string
 ): QueryBuild => ({
     query: `SELECT ${
         select == '*' ? select : select.join(',')
     } FROM ${keyspace}.${table} ${
         criteria && Object.keys(criteria).length > 0
-            ? 'WHERE ' +
-              Object.keys(criteria)
-                  .map((crit) => crit + '=?')
-                  .join(' AND ')
+            ? 'WHERE ' + renderCriteria(criteria)
             : ''
     } ${extra || ''}`.trim(),
-    args: [...(criteria ? Object.values(criteria) : [])],
+    args: criteriaValues(criteria),
 });
 
 export const selectOneFromRaw = <
@@ -38,20 +69,17 @@ export const selectOneFromRaw = <
     keyspace: string,
     table: F,
     select: '*' | (keyof TableMap[F])[],
-    criteria?: { [key in keyof TableMap[F]]?: TableMap[F][key] | string },
+    criteria?: Criteria<TableMap[F]>,
     extra?: string
 ): QueryBuild => ({
     query: `SELECT ${
         select == '*' ? select : select.join(',')
     } FROM ${keyspace}.${table} ${
         criteria && Object.keys(criteria).length > 0
-            ? 'WHERE ' +
-              Object.keys(criteria)
-                  .map((crit) => crit + '=?')
-                  .join(' AND ')
+            ? 'WHERE ' + renderCriteria(criteria)
             : ''
     } LIMIT 1 ${extra || ''}`.trim(),
-    args: [...(criteria ? Object.values(criteria) : [])],
+    args: criteriaValues(criteria),
 });
 
 export const insertIntoRaw = <
@@ -79,23 +107,17 @@ export const updateRaw = <
     keyspace: string,
     table: TableName,
     object: Partial<TableMap[TableName]>,
-    criteria: { [key in ColumnName]?: TableMap[TableName][key] | string },
+    criteria: Criteria<TableMap[TableName]>,
     extra?: string
 ): QueryBuild => ({
     query: `UPDATE ${keyspace}.${table} SET ${Object.keys(object)
         .map((it) => it + '=?')
         .join(',')} ${
         criteria && Object.keys(criteria).length > 0
-            ? 'WHERE ' +
-              Object.keys(criteria)
-                  .map((crit) => (crit += '=?'))
-                  .join(' AND ')
+            ? 'WHERE ' + renderCriteria(criteria)
             : ''
     } ${extra || ''}`.trim(),
-    args: [
-        ...Object.values(object),
-        ...(criteria ? Object.values(criteria) : []),
-    ],
+    args: [...Object.values(object), ...criteriaValues(criteria)],
 });
 
 export const deleteFromRaw = <
@@ -107,20 +129,17 @@ export const deleteFromRaw = <
     keyspace: string,
     table: TableName,
     fields: '*' | DeletedColumnName[],
-    criteria: { [key in ColumnName]?: TableMap[TableName][key] | string },
+    criteria: Criteria<TableMap[TableName]>,
     extra?: string
 ): QueryBuild => ({
     query: `DELETE${
         fields == '*' ? '' : ' ' + fields.join(',')
     } FROM ${keyspace}.${table} ${
         criteria && Object.keys(criteria).length > 0
-            ? 'WHERE ' +
-              Object.keys(criteria)
-                  .map((crit) => crit + '=?')
-                  .join(' AND ')
+            ? 'WHERE ' + renderCriteria(criteria)
             : ''
     } ${extra || ''}`.trim(),
-    args: [...(criteria ? Object.values(criteria) : [])],
+    args: criteriaValues(criteria),
 });
 
 export type CassandraTypes = keyof typeof types.dataTypes;

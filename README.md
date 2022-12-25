@@ -98,6 +98,7 @@ type User = {
   user_id: string;
   username: string;
   email: string;
+  age: number;
 };
 
 type Order = {
@@ -135,6 +136,12 @@ In the event you want to apply specific restrictions to what entries should be r
 const users = await DB.selectFrom("users", ["username"], { user_id: "12345" });
 ```
 
+You can also do basic number equality here.
+
+```ts
+const users = await DB.selectFrom("users", ["username"], { age: eqGreaterThanOrEqual(18) });
+```
+
 Adding extra values to this query should be as simple as
 
 ```ts
@@ -159,6 +166,12 @@ In the event you want to apply specific restrictions to what entries should be r
 
 ```ts
 const user = await DB.selectOneFrom("users", ["username"], { user_id: "12345" });
+```
+
+You can also do basic number equality here.
+
+```ts
+const user = await DB.selectOneFrom("users", ["username"], { age: eqGreaterThanOrEqual(18) });
 ```
 
 Adding extra values to this query should be as simple as
@@ -192,10 +205,10 @@ await DB.insertInto('users', {user_id: "12345", username: "lucemans"}, "ALLOW FI
 
 ### deleteFrom
 
-Deleting fromt he database can be done in a multitude of ways. In the event of deleting the entire row from the table, you can do it like so:
+Deleting from the database can be done in a multitude of ways. In the event of deleting the entire row, or more of them, from the table, you can do it like so:
 
 ```ts
-await DB.deleteFrom('users', '*', {user_id: "12345"});
+await DB.deleteFrom('users', '*', {user_id: "12345", age: eqGreaterThanOrEqual(18)});
 ```
 
 The above code will delete the user with the `user_id` of `12345`.
@@ -217,7 +230,7 @@ await DB.deleteFrom('users', ['username'], {user_id: "12345"}, "ALLOW FILTERING"
 Update allows you to edit only some parts of a row. This is done by passing an object with the values you want to update and the criteria to find the row you want to update.
 
 ```ts
-await DB.update('users', {username: "lucemans"}, {user_id: "12345"})
+await DB.update('users', {username: "lucemans"}, {user_id: "12345", age: eqGreaterThanOrEqual(18)})
 ```
 
 Adding extra values to this query should be as simple as

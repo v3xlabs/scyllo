@@ -11,6 +11,7 @@ import {
     createIndexRaw,
     createLocalIndexRaw,
     createTableRaw,
+    Criteria,
     deleteFromRaw,
     insertIntoRaw,
     QueryBuild,
@@ -170,9 +171,7 @@ export class ScylloClient<Tables extends TableScheme> {
     >(
         table: TableName,
         select: '*' | ColumnName[],
-        criteria?: {
-            [key in keyof Tables[TableName]]?: Tables[TableName][key] | string;
-        },
+        criteria?: Criteria<Tables[TableName]>,
         extra?: string
     ): Promise<Pick<Tables[TableName], ColumnName>[]> {
         const query = selectFromRaw<Tables, TableName>(
@@ -199,9 +198,7 @@ export class ScylloClient<Tables extends TableScheme> {
     >(
         table: Table,
         select: '*' | ColumnName[],
-        criteria?: {
-            [key in keyof Tables[Table]]?: Tables[Table][key] | string;
-        },
+        criteria?: Criteria<Tables[Table]>,
         extra?: string
     ): Promise<Pick<Tables[Table], ColumnName> | undefined> {
         const query = selectOneFromRaw<Tables, Table>(
@@ -246,7 +243,7 @@ export class ScylloClient<Tables extends TableScheme> {
     >(
         table: Table,
         object: Partial<Tables[Table]>,
-        criteria: { [key in ColumnName]?: Tables[Table][key] | string },
+        criteria: Criteria<Tables[Table]>,
         extra?: string
     ): Promise<types.ResultSet> {
         const query = updateRaw<Tables, Table, ColumnName>(
@@ -270,7 +267,7 @@ export class ScylloClient<Tables extends TableScheme> {
     >(
         table: Table,
         fields: '*' | DeletedColumnName[],
-        criteria: { [key in ColumnName]?: Tables[Table][key] | string },
+        criteria: Criteria<Tables[Table]>,
         extra?: string
     ): Promise<types.ResultSet> {
         const query = deleteFromRaw<
