@@ -475,7 +475,7 @@ await DB.migrate([
 However nice Cassandra/Scylla and hereby also Scyllo may be, ID generation is not something native to the database. This is done by design, see [Lightweight Transactions](https://www.datastax.com/blog/lightweight-transactions-cassandra-20).
 When looking at companies that utalise CQL at scale, we notice the common trend of [Snowflake ID](https://en.wikipedia.org/wiki/Snowflake_ID), a Twitter created system for generating IDs at scale.
 
-Obviously [@lvkdotsh](https://github.com/lvkdotsh) has a library for this, and we highly recommend you checkout [Sunflake](https://github.com/lvkdotsh/sunflake), a zero-depedency lightweight typescript-safe Snowflake ID generator.
+Obviously [@v3xlabs](https://github.com/v3xlabs) has a library for this, and we highly recommend you checkout [Sunflake](https://github.com/v3xlabs/sunflake), a zero-depedency lightweight typescript-safe Snowflake ID generator.
 
 ## Debug Mode & Logging
 
@@ -494,7 +494,7 @@ const DB = new ScylloClient<{ users: User; orders: Order }>({
 });
 ```
 
-Debug Mode by default will log all performed queries to the console. If you would rather have these queries piped to some other method ([@lvksh/logger](https://github.com/lvkdotsh/logger) in our example) then you can do that with the following.
+Debug Mode by default will log all performed queries to the console. If you would rather have these queries piped to some other method ([@lvksh/logger](https://github.com/v3xlabs/logger) in our example) then you can do that with the following.
 
 ```ts
 import { ScylloClient } from 'scyllo';
@@ -533,11 +533,9 @@ Note that Tuples have to be create in a specific way, which you can read about [
 Limited multi-keyspace support. This is something that is on our roadmap and hopefully some day in the future we will be able to handle this.
 As of right now scyllo is unable to provide you with a smooth multi-keyspace experience, but this is in the works.
 
-Query-ing restrictions are currently limited to only allow direct equality checks, for ex. `user_id = 5` etc. We hope to be able to support `user_id > 5` and `user_id >= 5` in the near future as well. If this is something you are interested in, please let us know.
-
 ## Contributors
 
-[![](https://contrib.rocks/image?repo=lvkdotsh/scyllo)](https://github.com/lvkdotsh/scyllo/graphs/contributors)
+[![](https://contrib.rocks/image?repo=v3xlabs/scyllo)](https://github.com/v3xlabs/scyllo/graphs/contributors)
 
 ## LICENSE
 
