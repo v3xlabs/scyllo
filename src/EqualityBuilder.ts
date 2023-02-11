@@ -22,7 +22,7 @@ export const isEqualityExpression = (
     typeof object === 'object' && 'operation' in object;
 
 // TODO: investigate how these things are compared and maybe add more types here
-export const eqIn = <T extends (string | number)[]>(
+export const eqIn = <T extends (string | number | bigint)[]>(
     ...values: T
 ): EqualityExpression<T, 'in'> => ({
     operation: ` in (${values.map((_) => '?').join(',')})`,
