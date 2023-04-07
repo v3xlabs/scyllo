@@ -68,23 +68,6 @@ export type ScylloClientOptions = {
     debug?: boolean;
 };
 
-const fromObjectScyllo = (
-    row: types.Row,
-    encodingOptions: ClientOptions['encoding'],
-    columns: types.ResultSet['columns']
-) =>
-    Object.assign(
-        {},
-        ...row.keys().map((item: any) => ({
-            [item]: ensureExistingCollections(
-                fromScyllo(row.get(item)),
-                encodingOptions,
-                // could maybe use the index here, but not sure if they're ordered the same
-                columns.find((it) => it.name === item)!.type.code
-            ),
-        }))
-    );
-
 const ensureExistingCollections = (
     value: unknown,
     encodingOptions: ClientOptions['encoding'],
@@ -108,6 +91,23 @@ const ensureExistingCollections = (
 
     return value;
 };
+
+const fromObjectScyllo = (
+    row: types.Row,
+    encodingOptions: ClientOptions['encoding'],
+    columns: types.ResultSet['columns']
+) =>
+    Object.assign(
+        {},
+        ...row.keys().map((item: any) => ({
+            [item]: ensureExistingCollections(
+                fromScyllo(row.get(item)),
+                encodingOptions,
+                // could maybe use the index here, but not sure if they're ordered the same
+                columns.find((it) => it.name === item)!.type.code
+            ),
+        }))
+    );
 
 export class ScylloClient<Tables extends TableScheme> {
     keyspace: string;
