@@ -1,6 +1,7 @@
 import { LogMethodInput } from '@lvksh/logger';
 import {
     Client,
+    ClientOptions,
     DseClientOptions as CassandraConfig,
     types,
 } from 'cassandra-driver';
@@ -67,13 +68,46 @@ export type ScylloClientOptions = {
     debug?: boolean;
 };
 
-const fromObjectScyllo = (row: types.Row) =>
+const fromObjectScyllo = (
+    row: types.Row,
+    encodingOptions: ClientOptions['encoding'],
+    columns: types.ResultSet['columns']
+) =>
     Object.assign(
         {},
-        ...row
-            .keys()
-            .map((item: any) => ({ [item]: fromScyllo(row.get(item)) }))
+        ...row.keys().map((item: any) => ({
+            [item]: ensureExistingCollections(
+                fromScyllo(row.get(item)),
+                encodingOptions,
+                // could maybe use the index here, but not sure if they're ordered the same
+                columns.find((it) => it.name === item)!.type.code
+            ),
+        }))
     );
+
+const ensureExistingCollections = (
+    value: unknown,
+    encodingOptions: ClientOptions['encoding'],
+    columnType: types.dataTypes
+) => {
+    if (value !== null) return value;
+
+    if (columnType === types.dataTypes.list) return [];
+
+    if (columnType === types.dataTypes.set) {
+        if (encodingOptions?.set?.prototype === Set.prototype) return new Set();
+
+        return [];
+    }
+
+    if (columnType === types.dataTypes.map) {
+        if (encodingOptions?.map?.prototype === Map.prototype) return new Map();
+
+        return {};
+    }
+
+    return value;
+};
 
 export class ScylloClient<Tables extends TableScheme> {
     keyspace: string;
@@ -81,9 +115,11 @@ export class ScylloClient<Tables extends TableScheme> {
     debug: boolean;
     log: LogMethod;
     prepare: boolean;
+    encodingOptions: ClientOptions['encoding'];
 
     constructor(options: ScylloClientOptions) {
         this.client = new Client(options.client);
+        this.encodingOptions = options.client.encoding;
         this.keyspace = options.client.keyspace;
         this.debug = options.debug || false;
         this.log = options.log || console.log;
@@ -183,10 +219,9 @@ export class ScylloClient<Tables extends TableScheme> {
         );
         const result = await this.query(query);
 
-        return result.rows.map(fromObjectScyllo) as Pick<
-            Tables[TableName],
-            ColumnName
-        >[];
+        return result.rows.map((row) =>
+            fromObjectScyllo(row, this.encodingOptions, result.columns)
+        ) as Pick<Tables[TableName], ColumnName>[];
     }
     /**
      * Select one from
@@ -210,10 +245,12 @@ export class ScylloClient<Tables extends TableScheme> {
         );
         const result = await this.query(query);
 
-        return result.rows.slice(0, 1).map(fromObjectScyllo).at(0) as Pick<
-            Tables[Table],
-            ColumnName
-        >;
+        return result.rows
+            .slice(0, 1)
+            .map((row) =>
+                fromObjectScyllo(row, this.encodingOptions, result.columns)
+            )
+            .at(0) as Pick<Tables[Table], ColumnName>;
     }
     /**
      * Insert an object into
