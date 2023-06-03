@@ -6,7 +6,8 @@ export type ScylloSafeType =
     | bigint
     | types.Long
     | boolean
-    | object;
+    | object
+    | null;
 export type ValidDataType =
     | string
     | number
@@ -14,7 +15,8 @@ export type ValidDataType =
     | boolean
     | types.Long
     | string[]
-    | object;
+    | object
+    | null;
 
 export const toScyllo: (a: ValidDataType) => ScylloSafeType = (a) => {
     if (a instanceof types.Long) return a;
