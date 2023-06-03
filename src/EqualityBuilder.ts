@@ -19,7 +19,7 @@ export type ExpressionByValue<Value> = Value extends number | bigint
 export const isEqualityExpression = (
     object: any
 ): object is EqualityExpression<any, any> =>
-    typeof object === 'object' && 'operation' in object;
+    typeof object === 'object' && object !== null && 'operation' in object;
 
 // TODO: investigate how these things are compared and maybe add more types here
 export const eqIn = <T extends (string | number | bigint)[]>(
