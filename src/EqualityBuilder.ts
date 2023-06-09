@@ -29,6 +29,13 @@ export const eqIn = <T extends (string | number | bigint)[]>(
     values,
 });
 
+export const eqContains = <T extends string | number | bigint>(
+    value: T
+): EqualityExpression<T, 'contains'> => ({
+    operation: ` contains ${value}`,
+    values: [value],
+});
+
 export const eqLessThan = <T extends number | bigint>(
     value: T
 ): EqualityExpression<T, '<'> => ({
