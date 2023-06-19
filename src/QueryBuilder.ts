@@ -53,7 +53,7 @@ export const selectFromRaw = <
     extra?: string
 ): QueryBuild => ({
     query: `SELECT ${
-        select == '*' ? select : select.join(',')
+        Array.isArray(select) ? select.join(',') : select
     } FROM ${keyspace}.${table} ${
         criteria && Object.keys(criteria).length > 0
             ? 'WHERE ' + renderCriteria(criteria)
@@ -68,12 +68,12 @@ export const selectOneFromRaw = <
 >(
     keyspace: string,
     table: F,
-    select: '*' | (keyof TableMap[F])[],
+    select: '*' | (keyof TableMap[F])[] | (string & {}),
     criteria?: Criteria<TableMap[F]>,
     extra?: string
 ): QueryBuild => ({
     query: `SELECT ${
-        select == '*' ? select : select.join(',')
+        Array.isArray(select) ? select.join(',') : select
     } FROM ${keyspace}.${table} ${
         criteria && Object.keys(criteria).length > 0
             ? 'WHERE ' + renderCriteria(criteria)
