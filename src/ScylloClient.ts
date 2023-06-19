@@ -99,7 +99,7 @@ const fromObjectScyllo = (
 ) =>
     Object.assign(
         {},
-        ...row.keys().map((item: any) => ({
+        ...row.keys().map((item) => ({
             [item]: ensureExistingCollections(
                 fromScyllo(row.get(item)),
                 encodingOptions,
@@ -223,6 +223,37 @@ export class ScylloClient<Tables extends TableScheme> {
             fromObjectScyllo(row, this.encodingOptions, result.columns)
         ) as Pick<Tables[TableName], ColumnName>[];
     }
+
+    /**
+     * count rows
+     * in a table and return based on criteria.
+     */
+    async count<TableName extends keyof Tables>(
+        table: TableName,
+        criteria?: Criteria<Tables[TableName]>,
+        extra?: string
+    ): Promise<bigint> {
+        const query = selectOneFromRaw<Tables, TableName>(
+            this.keyspace,
+            table,
+            'COUNT(*)',
+            criteria,
+            extra
+        );
+        const result = await this.query(query);
+
+        const rows: Record<string, unknown>[] = result.rows.map((row) =>
+            fromObjectScyllo(row, this.encodingOptions, result.columns)
+        );
+
+        const entry = rows.at(0);
+
+        if (!entry || !('count' in entry) || typeof entry.count !== 'bigint')
+            throw new Error('invalid cassandra response');
+
+        return entry.count;
+    }
+
     /**
      * Select one from
      * a table and return based on criteria.
