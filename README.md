@@ -9,6 +9,7 @@
 - [Documentation](#documentation)
   - [selectFrom](#selectfrom)
   - [selectOneFrom](#selectonefrom)
+  - [count](#count)
   - [insertInto](#insertinto)
   - [deleteFrom](#deletefrom)
   - [update](#update)
@@ -181,6 +182,26 @@ const user = await DB.selectOneFrom("users", ["username"], { user_id: "12345" },
 ```
 
 The difference is that the `selectOneFrom` function will return a single object or undefined instead of an array of objects.
+
+### count
+
+It is also very easy to count the number of entries in the database.
+
+```ts
+await DB.count('users', { age: 18 });
+```
+
+The filter supports all of the number equality features that the [`selectFrom`](#selectfrom) function supports
+
+```ts
+await DB.count('users', { age: eqGreaterThanOrEqual(18) });
+```
+
+You can also leave out the filter if you want to count all the entries:
+
+```ts
+await DB.count('users');
+```
 
 ### insertInto
 
