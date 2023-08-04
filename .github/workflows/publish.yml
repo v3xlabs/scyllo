@@ -7,15 +7,35 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v2.4.0
         with:
-          node-version: '12.x'
-          registry-url: 'https://registry.npmjs.org'
-      - run: yarn
+          run_install: false
+          standalone: true
+          package_json_file: blog/package.json
+          version: 8
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 19
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install
+
       - name: Build
-        run: yarn build
+        run: pnpm build
+
       - name: Version
-        run: yarn version --new-version "${GITHUB_REF:11}" --no-git-tag-version
-      - run: yarn pub
+        run: pnpm version --new-version "${GITHUB_REF:11}" --allow-same-version --no-git-tag-version
+
+      - run: pnpm pub --tag next
+        if: ${{ contains(github.ref, '-') }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - run: pnpm pub
+        if: ${{ !contains(github.ref, '-') }}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
