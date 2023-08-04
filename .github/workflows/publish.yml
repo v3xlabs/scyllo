@@ -12,7 +12,6 @@ jobs:
         with:
           run_install: false
           standalone: true
-          package_json_file: blog/package.json
           version: 8
 
       - name: Setup Node
