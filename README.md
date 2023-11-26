@@ -377,7 +377,7 @@ await DB.createKeyspace('mykeyspace');
 A keyspace with replicationClass and replicationFactor
 
 ```ts
-await DB.useKeyspace('myotherkeyspace', 'SimpleStrategy', 1);
+await DB.createKeyspace('myotherkeyspace', 'SimpleStrategy', 1);
 ```
 
 ### dropKeyspace
