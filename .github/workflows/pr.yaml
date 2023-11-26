@@ -4,8 +4,22 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: Install yarn
-      run: yarn
-    - name: Run ESLint
-      run: yarn lint
+      - uses: actions/checkout@v2
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v2.4.0
+        with:
+          run_install: false
+          standalone: true
+          version: 8
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 19
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install
+
+      - name: Lint
+        run: pnpm lint

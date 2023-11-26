@@ -5,7 +5,7 @@
     "types": "lib/index.d.ts",
     "repository": {
         "type": "git",
-        "url": "https://github.com/lvkdotsh/scyllo.git"
+        "url": "https://github.com/v3xlabs/scyllo.git"
     },
     "author": "Lucemans <luc@lucemans.nl>",
     "files": [
@@ -37,10 +37,10 @@
         "typescript-eslint": "^0.0.1-alpha.0"
     },
     "scripts": {
-        "test": "yarn build && jest --verbose",
+        "test": "pnpm build && jest --verbose",
         "build": "tsc",
         "lint": "eslint -c .eslintrc.json --ext .ts ./src",
-        "pub": "yarn build && yarn publish --access public"
+        "pub": "pnpm build && pnpm publish --access public --no-git-checks"
     },
     "dependencies": {
         "@lvksh/logger": "^1.6.3",
